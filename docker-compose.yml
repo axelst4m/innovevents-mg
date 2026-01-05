@@ -1,0 +1,52 @@
+services:
+  api:
+    build:
+      context: ./apps/api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/innovevents
+      - MONGO_URL=mongodb://mongo:27017/innovevents
+    depends_on:
+      - db
+      - mongo
+    volumes:
+      - ./apps/api:/app
+      - /app/node_modules
+
+  web:
+    build:
+      context: ./apps/web
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - api
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=innovevents
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  pgdata:
+  mongodata:
