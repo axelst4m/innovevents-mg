@@ -1,0 +1,85 @@
+:root {
+  --minitel-bg: #e6e6e6;
+  --minitel-panel: #d9d9d9;
+  --minitel-text: #111;
+  --minitel-accent: #111;
+}
+
+body {
+  background: var(--minitel-bg);
+  color: var(--minitel-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+/* léger effet "écran" */
+.minitel-shell {
+  background: radial-gradient(circle at 50% 10%, #f2f2f2 0%, var(--minitel-bg) 60%);
+}
+
+.minitel-header,
+.minitel-footer {
+  background: var(--minitel-panel);
+}
+
+.minitel-brand {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Links façon terminal */
+.minitel-link {
+  position: relative;
+  text-decoration: none !important;
+  color: var(--minitel-text) !important;
+  padding: 0.25rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+.minitel-link:hover,
+.minitel-link:focus-visible {
+  background: #cfcfcf;
+  outline: 2px solid #bdbdbd;
+  outline-offset: 2px;
+}
+
+/* Style "actif" des NavLink */
+.minitel-link.active {
+  background: #111;
+  color: #e6e6e6 !important;
+}
+
+/* Bouton type "touche" */
+.minitel-cta {
+  font-family: inherit;
+  border: 2px solid #111 !important;
+  background: #111 !important;
+  color: #e6e6e6 !important;
+  box-shadow: 2px 2px 0 #666;
+  border-radius: 0 !important;
+  padding: 0.4rem 0.7rem !important;
+}
+
+.minitel-cta:hover,
+.minitel-cta:focus-visible {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #666;
+}
+
+/* Main container un peu "cadre écran" */
+.minitel-main {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.minitel-screen {
+  background: #efefef;
+  border: 2px solid #111;
+  box-shadow: 6px 6px 0 #777;
+  padding: 1rem;
+}
+
+/* Footer small */
+.minitel-muted {
+  color: #333 !important;
+}
