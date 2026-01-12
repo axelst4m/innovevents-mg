@@ -35,6 +35,13 @@ export default function AdminProspects() {
         error: "", 
         prospects: [] 
     });
+
+    // Etat fiche détail
+    const [detailOpen, setDetailOpen] = useState(false);
+    const [detailLoading, setDetailLoading] = useState(false);
+    const [detailError, setDetailError] = useState("");
+    const [detailProspect, setDetailProspect] = useState(null);
+
     // ID du prospect en cours de mise à jour (pour désactiver les boutons)
   const [updatingId, setUpdatingId] = useState(null);
 
@@ -62,7 +69,28 @@ export default function AdminProspects() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, limit]);
+    // Ouvre le détail d'un prospect (charge depuis l'API via id)
+    async function openDetail(id) {
+        setDetailOpen(true);
+        setDetailLoading(true);
+        setDetailError("");
+        setDetailProspect(null);
 
+        try {
+            const res = await fetch(`${apiUrl}/api/prospects/${id}`);
+            const data = await res.json();
+
+            if (!res.ok) {
+            throw new Error(data?.error || "Erreur lors du chargement du détail");
+            }
+
+            setDetailProspect(data.prospect);
+        } catch (e) {
+            setDetailError(e.message || "Erreur");
+        } finally {
+            setDetailLoading(false);
+        }
+    }
     // Met à jour le statut d'un prospect (appl l’API en PATCH puis recharge liste)
   async function updateStatus(id, nextStatus) {
     try {
@@ -84,6 +112,7 @@ export default function AdminProspects() {
     } finally {
       setUpdatingId(null);
     }
+
   }
     // Rendu
   return (
@@ -203,6 +232,12 @@ export default function AdminProspects() {
                     >
                       Refusé
                     </button>
+                    <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => openDetail(p.id)}
+                        >
+                        Voir
+                    </button>
                   </td>
                   <td>{fmtDate(p.created_at)}</td>
                 </tr>
@@ -211,6 +246,68 @@ export default function AdminProspects() {
           </tbody>
         </table>
       </div>
+
+        {/*Modal détail prospect */}
+      {detailOpen && (
+        <div className="modal fade show d-block" tabIndex="-1">
+            <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div className="modal-content">
+                <div className="modal-header">
+                <h5 className="modal-title">Détail du prospect</h5>
+                <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setDetailOpen(false)}
+                />
+                </div>
+
+                <div className="modal-body">
+                {detailLoading ? (
+                    <p className="text-muted">Chargement…</p>
+                ) : detailError ? (
+                    <div className="alert alert-danger">{detailError}</div>
+                ) : detailProspect ? (
+                    <>
+                    <p><strong>Entreprise :</strong> {detailProspect.company_name}</p>
+                    <p>
+                        <strong>Contact :</strong> {detailProspect.firstname}{" "}
+                        {detailProspect.lastname}
+                    </p>
+                    <p><strong>Email :</strong> {detailProspect.email}</p>
+                    <p><strong>Téléphone :</strong> {detailProspect.phone}</p>
+                    <p><strong>Localisation :</strong> {detailProspect.location}</p>
+                    <p><strong>Type d’événement :</strong> {detailProspect.event_type}</p>
+                    <p><strong>Date :</strong> {detailProspect.event_date}</p>
+                    <p><strong>Participants :</strong> {detailProspect.participants}</p>
+                    <p>
+                        <strong>Statut :</strong>{" "}
+                        <span className="badge text-bg-dark">
+                        {detailProspect.status}
+                        </span>
+                    </p>
+
+                    <hr />
+
+                    <p><strong>Message :</strong></p>
+                    <p className="border rounded p-2 bg-light">
+                        {detailProspect.message || "—"}
+                    </p>
+                    </>
+                ) : null}
+                </div>
+
+                <div className="modal-footer">
+                <button
+                    className="btn btn-secondary"
+                    onClick={() => setDetailOpen(false)}
+                >
+                    Fermer
+                </button>
+                </div>
+            </div>
+            </div>
+        </div>
+        )}
 
     </div>
   );
