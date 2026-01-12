@@ -252,4 +252,91 @@ router.patch("/prospects/:id/status", async (req, res) => {
     return res.status(500).json({ ok: false, error: "Erreur serveur" });
   }
 });
+// Route POST convert prospect to client
+router.post("/prospects/:id/convert", async (req, res) => {
+  try {
+    const prospectId = Number(req.params.id);
+    if (!Number.isInteger(prospectId) || prospectId <= 0) {
+      return res.status(400).json({ ok: false, error: "ID prospect invalide" });
+    }
+
+    // 1) Charger le prospect
+    const { rows: prospectRows } = await pool.query(
+      `
+      SELECT id, company_name, firstname, lastname, email, phone, location, client_id
+      FROM prospects
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [prospectId]
+    );
+
+    if (!prospectRows.length) {
+      return res.status(404).json({ ok: false, error: "Prospect introuvable" });
+    }
+
+    const prospect = prospectRows[0];
+
+    // Si déjà converti
+    if (prospect.client_id) {
+      return res.status(409).json({
+        ok: false,
+        error: "Ce prospect est déjà rattaché à un client",
+        client_id: prospect.client_id,
+      });
+    }
+
+    // 2) Créer le client
+    const { rows: clientRows } = await pool.query(
+      `
+      INSERT INTO clients (company_name, firstname, lastname, email, phone, location)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, company_name, firstname, lastname, email, created_at
+      `,
+      [
+        prospect.company_name,
+        prospect.firstname,
+        prospect.lastname,
+        prospect.email,
+        prospect.phone,
+        prospect.location,
+      ]
+    );
+
+    const client = clientRows[0];
+
+    // 3) Marquer le prospect comme converti (lien + date)
+    await pool.query(
+      `
+      UPDATE prospects
+      SET client_id = $1, converted_at = NOW(), status = 'qualifie'
+      WHERE id = $2
+      `,
+      [client.id, prospectId]
+    );
+
+    // 4) Journalisation NoSQL (Mongo)
+    try {
+      const mongo = await getMongoDb();
+      await mongo.collection("logs").insertOne({
+        timestamp: new Date(),
+        type_action: "CREATION_CLIENT",
+        id_utilisateur: null,
+        details: { client_id: client.id, client_name: `${client.firstname} ${client.lastname}` },
+      });
+    } catch (e) {
+      console.error("Mongo log failed:", e.message);
+    }
+
+    return res.status(201).json({ ok: true, client });
+  } catch (e) {
+    // email déjà existant (UNIQUE)
+    if (String(e?.message || "").includes("duplicate key value")) {
+      return res.status(409).json({ ok: false, error: "Email déjà utilisé par un client" });
+    }
+
+    console.error(e);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
 module.exports = router;

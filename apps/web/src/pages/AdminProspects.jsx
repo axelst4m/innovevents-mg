@@ -91,6 +91,23 @@ export default function AdminProspects() {
             setDetailLoading(false);
         }
     }
+
+    // Convertit un prospect en client (appelle l’API puis recharge la liste)
+    async function convertToClient(prospectId) {
+        try {
+            const res = await fetch(`${apiUrl}/api/prospects/${prospectId}/convert`, {
+            method: "POST",
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.error || "Erreur conversion");
+
+            alert("Client créé !");
+            setDetailOpen(false);
+            await load();
+        } catch (e) {
+            alert(e.message || "Erreur");
+        }
+    }
     // Met à jour le statut d'un prospect (appl l’API en PATCH puis recharge liste)
   async function updateStatus(id, nextStatus) {
     try {
@@ -297,6 +314,13 @@ export default function AdminProspects() {
                 </div>
 
                 <div className="modal-footer">
+                <button
+                    className="btn btn-primary"
+                    onClick={() => convertToClient(detailProspect.id)}
+                    disabled={!detailProspect}
+                    >
+                    Convertir en client
+                </button>
                 <button
                     className="btn btn-secondary"
                     onClick={() => setDetailOpen(false)}
