@@ -56,6 +56,11 @@ export default function AppLayout() {
                     Demande de devis
                   </NavLink>
                 </li>
+                <li className="nav-item">
+                  <NavLink className={linkClass} to="/admin/prospects">
+                    Admin
+                  </NavLink>
+                </li>
               </ul>
             </div>
           </div>

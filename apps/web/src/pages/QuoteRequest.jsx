@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 const initial = {
   company_name: "",
@@ -17,8 +17,10 @@ export default function QuoteRequest() {
   const [form, setForm] = useState(initial);
   const [status, setStatus] = useState({ state: "idle", message: "", errors: {} });
 
-  const apiUrl = useMemo(() => import.meta.env.VITE_API_URL || "http://localhost:3000", []);
+  // URL de l’API
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+  
   function setField(name, value) {
     setForm((f) => ({ ...f, [name]: value }));
   }

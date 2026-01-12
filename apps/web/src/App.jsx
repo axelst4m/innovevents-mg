@@ -8,6 +8,7 @@ import Reviews from "./pages/Reviews.jsx";
 import Contact from "./pages/Contact.jsx";
 import QuoteRequest from "./pages/QuoteRequest.jsx";
 import Legal from "./pages/Legal.jsx";
+import AdminProspects from "./pages/AdminProspects.jsx";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/demande-devis" element={<QuoteRequest />} />
           <Route path="/mentions-legales" element={<Legal />} />
+          <Route path="/admin/prospects" element={<AdminProspects />} />
         </Route>
       </Routes>
     </BrowserRouter>

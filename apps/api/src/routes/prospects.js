@@ -160,4 +160,96 @@ router.get("/prospects", async (req, res) => {
   }
 });
 
+// Route GET by ID
+router.get("/prospects/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ ok: false, error: "ID invalide" });
+    }
+
+    const query = `
+      SELECT
+        id,
+        company_name,
+        firstname,
+        lastname,
+        email,
+        phone,
+        location,
+        event_type,
+        event_date,
+        participants,
+        message,
+        status,
+        created_at
+      FROM prospects
+      WHERE id = $1
+      LIMIT 1
+    `;
+
+    const { rows } = await pool.query(query, [id]);
+    if (!rows.length) {
+      return res.status(404).json({ ok: false, error: "Prospect introuvable" });
+    }
+
+    return res.json({ ok: true, prospect: rows[0] });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+// Route PATCH status
+router.patch("/prospects/:id/status", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ ok: false, error: "ID invalide" });
+    }
+
+    const { status } = req.body || {};
+    const nextStatus = String(status || "").trim();
+
+    // Liste volontairement simple (on peut étendre plus tard)
+    const allowed = new Set(["a_contacter", "contacte", "qualifie", "refuse"]);
+    if (!allowed.has(nextStatus)) {
+      return res.status(400).json({
+        ok: false,
+        error: "Statut invalide",
+        allowed: Array.from(allowed),
+      });
+    }
+
+    const query = `
+      UPDATE prospects
+      SET status = $1
+      WHERE id = $2
+      RETURNING id, status, created_at
+    `;
+
+    const { rows } = await pool.query(query, [nextStatus, id]);
+    if (!rows.length) {
+      return res.status(404).json({ ok: false, error: "Prospect introuvable" });
+    }
+
+    // Log Mongo (optionnel, non bloquant)
+    try {
+      const mongo = await getMongoDb();
+      await mongo.collection("logs").insertOne({
+        timestamp: new Date(),
+        type_action: "PROSPECT_STATUS_UPDATED",
+        id_utilisateur: null,
+        details: { prospect_id: id, status: nextStatus },
+      });
+    } catch (e) {
+      console.error("Mongo log failed:", e.message);
+    }
+
+    return res.json({ ok: true, prospect: rows[0] });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
 module.exports = router;
