@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const prospectsRoutes = require("./routes/prospects");
 require("dotenv").config();
 
 const app = express();
@@ -10,6 +11,7 @@ app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(morgan("dev"));
+app.use("/api", prospectsRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 app.get("/api/hello", (req, res) => res.json({ message: "Hello Innov'Events API" }));
