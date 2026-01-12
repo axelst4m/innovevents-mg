@@ -8,6 +8,8 @@ function isEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+// Route POST
+
 router.post("/prospects", async (req, res) => {
   try {
     const {
@@ -103,6 +105,55 @@ router.post("/prospects", async (req, res) => {
       message:
         "Merci pour votre demande. Axel vous recontactera dans les plus brefs délais pour discuter de votre projet.",
     });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+// Route GET
+router.get("/prospects", async (req, res) => {
+  try {
+    const { status, limit } = req.query;
+
+    // limit : sécupour éviter des gros dumps
+    let limitInt = Number(limit || 50);
+    if (!Number.isInteger(limitInt) || limitInt <= 0) limitInt = 50;
+    if (limitInt > 200) limitInt = 200;
+
+    const where = [];
+    const values = [];
+
+    if (status && String(status).trim() !== "") {
+      values.push(String(status).trim());
+      where.push(`status = $${values.length}`);
+    }
+
+    const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
+    const query = `
+      SELECT
+        id,
+        company_name,
+        firstname,
+        lastname,
+        email,
+        phone,
+        location,
+        event_type,
+        event_date,
+        participants,
+        status,
+        created_at
+      FROM prospects
+      ${whereSql}
+      ORDER BY created_at DESC
+      LIMIT ${limitInt}
+    `;
+
+    const { rows } = await pool.query(query, values);
+
+    return res.json({ ok: true, count: rows.length, prospects: rows });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ ok: false, error: "Erreur serveur" });
