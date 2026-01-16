@@ -1,3 +1,5 @@
+Avancement Kanban : https://www.notion.so/2e69e1729b6980e28dc2dc39a8b54428?v=2e69e1729b69802ca4ca000c62b2ddc6
+
 # Innov'Events Manager
 
 Gestion d'événements — application fullstack minimale composée d'une API Node/Express et d'une interface web React + Vite. Le projet est organisé sous `apps/` et prêt à être lancé localement via Docker Compose pour reproduire un environnement de développement avec Postgres et MongoDB.
