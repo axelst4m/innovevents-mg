@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 // Listes des status dispo pour les prospects
@@ -22,7 +23,9 @@ function fmtDate(value) {
 // Page d'administration des prospects
 // permet de lister, filtrer et mettre à jour le statut
 export default function AdminProspects() {
-    // URL de l’API
+  const navigate = useNavigate();
+
+    // URL de l'API
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     //   Filtres
@@ -92,7 +95,7 @@ export default function AdminProspects() {
         }
     }
 
-    // Convertit un prospect en client (appelle l’API puis recharge la liste)
+    // Convertit un prospect en client (appelle l'API puis recharge la liste)
     async function convertToClient(prospectId) {
         try {
             const res = await fetch(`${apiUrl}/api/prospects/${prospectId}/convert`, {
@@ -101,8 +104,13 @@ export default function AdminProspects() {
             const data = await res.json();
             if (!res.ok) throw new Error(data?.error || "Erreur conversion");
 
-            alert("Client créé !");
-            setDetailOpen(false);
+            alert(`Client créé ! Un devis brouillon a été généré (${data.devis?.reference || ""})`);
+            // Met a jour le prospect dans le detail pour activer le bouton "Voir le devis"
+            setDetailProspect(prev => ({
+              ...prev,
+              client_id: data.client.id,
+              devis_id: data.devis?.id
+            }));
             await load();
         } catch (e) {
             alert(e.message || "Erreur");
@@ -314,10 +322,28 @@ export default function AdminProspects() {
                 </div>
 
                 <div className="modal-footer">
+                {detailProspect?.devis_id ? (
+                  <button
+                    className="btn btn-success"
+                    onClick={() => navigate(`/admin/devis?view=${detailProspect.devis_id}`)}
+                    >
+                    Compléter le devis ({detailProspect.devis_reference})
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-success"
+                    disabled={true}
+                    title="Vous devez d'abord convertir ce prospect en client"
+                    style={{ cursor: "not-allowed" }}
+                    >
+                    Créer un devis
+                  </button>
+                )}
                 <button
                     className="btn btn-primary"
                     onClick={() => convertToClient(detailProspect.id)}
-                    disabled={!detailProspect}
+                    disabled={!detailProspect || detailProspect.client_id}
+                    title={detailProspect?.client_id ? "Ce prospect est déjà un client" : ""}
                     >
                     Convertir en client
                 </button>

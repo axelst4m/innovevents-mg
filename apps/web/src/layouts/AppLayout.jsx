@@ -1,8 +1,19 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+
 const linkClass = ({ isActive }) =>
   `nav-link minitel-link ${isActive ? "active" : ""}`;
 
 export default function AppLayout() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isAdmin, isEmploye, logout } = useAuth();
+
+  // Gestion de la deconnexion
+  function handleLogout() {
+    logout();
+    navigate("/");
+  }
+
   return (
     <div className="d-flex flex-column min-vh-100 minitel-shell">
       <header className="border-bottom minitel-header">
@@ -31,36 +42,124 @@ export default function AppLayout() {
                     Accueil
                   </NavLink>
                 </li>
-                <li className="nav-item">
-                  <NavLink className={linkClass} to="/connexion">
-                    Se connecter
-                  </NavLink>
-                </li>
+
                 <li className="nav-item">
                   <NavLink className={linkClass} to="/evenements">
                     Évènements
                   </NavLink>
                 </li>
+
                 <li className="nav-item">
                   <NavLink className={linkClass} to="/avis">
                     Avis
                   </NavLink>
                 </li>
+
                 <li className="nav-item">
                   <NavLink className={linkClass} to="/contact">
                     Contact
                   </NavLink>
                 </li>
+
                 <li className="nav-item">
                   <NavLink className="btn minitel-cta" to="/demande-devis">
                     Demande de devis
                   </NavLink>
                 </li>
-                <li className="nav-item">
-                  <NavLink className={linkClass} to="/admin/prospects">
-                    Admin
-                  </NavLink>
-                </li>
+
+                {/* Menu conditionnel selon l'etat de connexion */}
+                {!isAuthenticated ? (
+                  // Utilisateur non connecte
+                  <li className="nav-item">
+                    <NavLink className={linkClass} to="/connexion">
+                      Se connecter
+                    </NavLink>
+                  </li>
+                ) : (
+                  // Utilisateur connecte - menu dropdown
+                  <li className="nav-item dropdown">
+                    <button
+                      className="nav-link minitel-link dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      {user?.firstname || "Mon compte"}
+                    </button>
+                    <ul className="dropdown-menu dropdown-menu-end">
+                      {/* Liens pour admin */}
+                      {isAdmin && (
+                        <>
+                          <li>
+                            <NavLink className="dropdown-item" to="/admin/dashboard">
+                              Dashboard Admin
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink className="dropdown-item" to="/admin/prospects">
+                              Prospects
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink className="dropdown-item" to="/admin/evenements">
+                              Gestion Événements
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink className="dropdown-item" to="/admin/devis">
+                              Gestion Devis
+                            </NavLink>
+                          </li>
+                          <li><hr className="dropdown-divider" /></li>
+                        </>
+                      )}
+
+                      {/* Liens pour employe */}
+                      {isEmploye && (
+                        <>
+                          <li>
+                            <NavLink className="dropdown-item" to="/employe/dashboard">
+                              Dashboard Employé
+                            </NavLink>
+                          </li>
+                          <li><hr className="dropdown-divider" /></li>
+                        </>
+                      )}
+
+                      {/* Liens pour client */}
+                      {!isAdmin && !isEmploye && (
+                        <>
+                          <li>
+                            <NavLink className="dropdown-item" to="/espace-client">
+                              Mon espace
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink className="dropdown-item" to="/espace-client/devis">
+                              Mes devis
+                            </NavLink>
+                          </li>
+                          <li><hr className="dropdown-divider" /></li>
+                        </>
+                      )}
+
+                      {/* Commun a tous */}
+                      <li>
+                        <NavLink className="dropdown-item" to="/mon-profil">
+                          Mon profil
+                        </NavLink>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item text-danger"
+                          onClick={handleLogout}
+                        >
+                          Se déconnecter
+                        </button>
+                      </li>
+                    </ul>
+                  </li>
+                )}
               </ul>
             </div>
           </div>

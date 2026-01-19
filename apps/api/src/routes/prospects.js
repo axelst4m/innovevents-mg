@@ -170,21 +170,25 @@ router.get("/prospects/:id", async (req, res) => {
 
     const query = `
       SELECT
-        id,
-        company_name,
-        firstname,
-        lastname,
-        email,
-        phone,
-        location,
-        event_type,
-        event_date,
-        participants,
-        message,
-        status,
-        created_at
-      FROM prospects
-      WHERE id = $1
+        p.id,
+        p.company_name,
+        p.firstname,
+        p.lastname,
+        p.email,
+        p.phone,
+        p.location,
+        p.event_type,
+        p.event_date,
+        p.participants,
+        p.message,
+        p.status,
+        p.created_at,
+        p.client_id,
+        d.id as devis_id,
+        d.reference as devis_reference
+      FROM prospects p
+      LEFT JOIN devis d ON d.client_id = p.client_id
+      WHERE p.id = $1
       LIMIT 1
     `;
 
@@ -252,6 +256,23 @@ router.patch("/prospects/:id/status", async (req, res) => {
     return res.status(500).json({ ok: false, error: "Erreur serveur" });
   }
 });
+// Route GET clients (pour les selects, etc.)
+router.get("/clients", async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT id, company_name, firstname, lastname, email, phone, location, is_active, created_at
+      FROM clients
+      WHERE is_active = TRUE
+      ORDER BY company_name ASC
+    `);
+
+    return res.json({ ok: true, clients: rows });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
 // Route POST convert prospect to client
 router.post("/prospects/:id/convert", async (req, res) => {
   try {
@@ -260,10 +281,11 @@ router.post("/prospects/:id/convert", async (req, res) => {
       return res.status(400).json({ ok: false, error: "ID prospect invalide" });
     }
 
-    // 1) Charger le prospect
+    // 1) Charger le prospect avec toutes les infos de la demande
     const { rows: prospectRows } = await pool.query(
       `
-      SELECT id, company_name, firstname, lastname, email, phone, location, client_id
+      SELECT id, company_name, firstname, lastname, email, phone, location, client_id,
+             event_type, event_date, participants, message
       FROM prospects
       WHERE id = $1
       LIMIT 1
@@ -315,20 +337,50 @@ router.post("/prospects/:id/convert", async (req, res) => {
       [client.id, prospectId]
     );
 
-    // 4) Journalisation NoSQL (Mongo)
+    // 4) Creer un devis brouillon avec les infos de la demande
+    const customMessage = [
+      `Demande initiale du ${new Date().toLocaleDateString("fr-FR")}:`,
+      `- Type d'evenement: ${prospect.event_type || "Non specifie"}`,
+      `- Date souhaitee: ${prospect.event_date || "Non specifiee"}`,
+      `- Nombre de participants: ${prospect.participants || "Non specifie"}`,
+      prospect.message ? `\nMessage du client:\n${prospect.message}` : ""
+    ].filter(Boolean).join("\n");
+
+    const { rows: devisRows } = await pool.query(
+      `
+      INSERT INTO devis (client_id, status, custom_message, valid_until)
+      VALUES ($1, 'brouillon', $2, $3)
+      RETURNING id, reference
+      `,
+      [
+        client.id,
+        customMessage,
+        // Validite par defaut: 30 jours
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+      ]
+    );
+
+    const devis = devisRows[0];
+
+    // 5) Journalisation NoSQL (Mongo)
     try {
       const mongo = await getMongoDb();
       await mongo.collection("logs").insertOne({
         timestamp: new Date(),
         type_action: "CREATION_CLIENT",
         id_utilisateur: null,
-        details: { client_id: client.id, client_name: `${client.firstname} ${client.lastname}` },
+        details: {
+          client_id: client.id,
+          client_name: `${client.firstname} ${client.lastname}`,
+          devis_id: devis.id,
+          devis_reference: devis.reference
+        },
       });
     } catch (e) {
       console.error("Mongo log failed:", e.message);
     }
 
-    return res.status(201).json({ ok: true, client });
+    return res.status(201).json({ ok: true, client, devis });
   } catch (e) {
     // email déjà existant (UNIQUE)
     if (String(e?.message || "").includes("duplicate key value")) {

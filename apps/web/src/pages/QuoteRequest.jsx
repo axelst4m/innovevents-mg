@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 const initial = {
   company_name: "",
@@ -14,11 +15,24 @@ const initial = {
 };
 
 export default function QuoteRequest() {
+  const { user, isAuthenticated } = useAuth();
   const [form, setForm] = useState(initial);
   const [status, setStatus] = useState({ state: "idle", message: "", errors: {} });
 
-  // URL de l’API
+  // URL de l'API
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+  // Pre-remplir les champs si l'utilisateur est connecte
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setForm(prev => ({
+        ...prev,
+        firstname: user.firstname || "",
+        lastname: user.lastname || "",
+        email: user.email || ""
+      }));
+    }
+  }, [isAuthenticated, user]);
 
   
   function setField(name, value) {

@@ -3,6 +3,9 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const prospectsRoutes = require("./routes/prospects");
+const authRoutes = require("./routes/auth");
+const eventsRoutes = require("./routes/events");
+const devisRoutes = require("./routes/devis");
 require("dotenv").config();
 
 const app = express();
@@ -11,6 +14,11 @@ app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(morgan("dev"));
+
+// Routes API
+app.use("/api/auth", authRoutes);
+app.use("/api/events", eventsRoutes);
+app.use("/api/devis", devisRoutes);
 app.use("/api", prospectsRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
