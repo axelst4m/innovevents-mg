@@ -110,6 +110,16 @@ export default function AppLayout() {
                               Gestion Devis
                             </NavLink>
                           </li>
+                          <li>
+                            <NavLink className="dropdown-item" to="/admin/messages">
+                              Messages Contact
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink className="dropdown-item" to="/admin/avis">
+                              Moderation Avis
+                            </NavLink>
+                          </li>
                           <li><hr className="dropdown-divider" /></li>
                         </>
                       )}
@@ -118,8 +128,8 @@ export default function AppLayout() {
                       {isEmploye && (
                         <>
                           <li>
-                            <NavLink className="dropdown-item" to="/employe/dashboard">
-                              Dashboard Employé
+                            <NavLink className="dropdown-item" to="/admin/avis">
+                              Moderation Avis
                             </NavLink>
                           </li>
                           <li><hr className="dropdown-divider" /></li>

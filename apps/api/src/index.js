@@ -7,6 +7,10 @@ const authRoutes = require("./routes/auth");
 const eventsRoutes = require("./routes/events");
 const devisRoutes = require("./routes/devis");
 const dashboardRoutes = require("./routes/dashboard");
+const contactRoutes = require("./routes/contact");
+const reviewsRoutes = require("./routes/reviews");
+const eventNotesRoutes = require("./routes/eventNotes");
+const eventTasksRoutes = require("./routes/eventTasks");
 require("dotenv").config();
 
 const app = express();
@@ -21,6 +25,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/devis", devisRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/reviews", reviewsRoutes);
+app.use("/api/events", eventNotesRoutes);
+app.use("/api/events", eventTasksRoutes);
+app.use("/api/tasks", eventTasksRoutes);  // Pour /api/tasks/my
 app.use("/api", prospectsRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));

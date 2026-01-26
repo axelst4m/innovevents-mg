@@ -426,4 +426,61 @@ router.get("/me", async (req, res) => {
   }
 });
 
+// ============================================
+// GET /api/auth/users - Liste des utilisateurs (admin/employe)
+// ============================================
+router.get("/users", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Token requis" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({ error: "Token invalide ou expire" });
+    }
+
+    // Seuls admin et employe peuvent lister
+    if (decoded.role !== "admin" && decoded.role !== "employe") {
+      return res.status(403).json({ error: "Acces refuse" });
+    }
+
+    const { role } = req.query;
+
+    const where = ["is_active = TRUE"];
+    const values = [];
+
+    // Filtrer par role si demande
+    if (role) {
+      if (role === "employe") {
+        where.push("role IN ('admin', 'employe')");
+      } else {
+        values.push(role);
+        where.push(`role = $${values.length}`);
+      }
+    }
+
+    const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
+    const result = await pool.query(
+      `SELECT id, email, firstname, lastname, role, created_at
+       FROM users
+       ${whereSql}
+       ORDER BY firstname, lastname`,
+      values
+    );
+
+    res.json({ users: result.rows });
+
+  } catch (err) {
+    console.error("Erreur /users:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 module.exports = router;

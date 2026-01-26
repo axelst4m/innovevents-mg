@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -329,6 +329,13 @@ export default function AdminEvents() {
                   </td>
                   <td>
                     <div className="btn-group btn-group-sm">
+                      <Link
+                        to={`/evenement/${event.id}`}
+                        className="btn btn-outline-info"
+                        title="Details et taches"
+                      >
+                        Details
+                      </Link>
                       <button
                         className="btn btn-outline-primary"
                         onClick={() => openEditModal(event)}
