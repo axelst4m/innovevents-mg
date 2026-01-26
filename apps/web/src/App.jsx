@@ -12,6 +12,7 @@ import QuoteRequest from "./pages/QuoteRequest.jsx";
 import Legal from "./pages/Legal.jsx";
 
 // Pages admin (a proteger plus tard)
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminProspects from "./pages/AdminProspects.jsx";
 import AdminEvents from "./pages/AdminEvents.jsx";
 import AdminDevis from "./pages/AdminDevis.jsx";
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/mentions-legales" element={<Legal />} />
 
           {/* Routes admin */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/prospects" element={<AdminProspects />} />
           <Route path="/admin/evenements" element={<AdminEvents />} />
           <Route path="/admin/devis" element={<AdminDevis />} />

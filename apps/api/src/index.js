@@ -6,6 +6,7 @@ const prospectsRoutes = require("./routes/prospects");
 const authRoutes = require("./routes/auth");
 const eventsRoutes = require("./routes/events");
 const devisRoutes = require("./routes/devis");
+const dashboardRoutes = require("./routes/dashboard");
 require("dotenv").config();
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/devis", devisRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api", prospectsRoutes);
 
 app.get("/health", (req, res) => res.json({ ok: true }));
