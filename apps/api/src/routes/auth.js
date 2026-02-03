@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const { pool } = require("../db/postgres");
 const { getMongoDb } = require("../db/mongo");
 
+const { sendWelcomeEmail, sendPasswordResetEmail } = require("../utils/mailer");
+
 const router = express.Router();
 
 // Config JWT - en prod mettre dans .env
@@ -126,7 +128,10 @@ router.post("/register", async (req, res) => {
       linked_client_id: linkedClient?.id || null
     });
 
-    // TODO: envoyer email de confirmation (a implementer)
+    // Envoi email de bienvenue (non bloquant, on n'attend pas le résultat)
+    sendWelcomeEmail(user).catch(err =>
+      console.error("Erreur envoi email bienvenue:", err.message)
+    );
 
     res.status(201).json({
       message: linkedClient
@@ -297,8 +302,11 @@ router.post("/forgot-password", async (req, res) => {
       email: user.email
     });
 
-    // TODO: envoyer le mail avec le nouveau mot de passe
-    // Pour l'instant on log en console (dev)
+    // Envoi du mail avec le mot de passe temporaire
+    sendPasswordResetEmail(user, tempPassword).catch(err =>
+      console.error("Erreur envoi email reset:", err.message)
+    );
+    // Log en console aussi (pratique pour le dev)
     console.log(`[DEV] Nouveau mot de passe pour ${user.email}: ${tempPassword}`);
 
     res.json({

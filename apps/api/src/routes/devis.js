@@ -3,6 +3,7 @@ const { pool } = require("../db/postgres");
 const { getMongoDb } = require("../db/mongo");
 const { authRequired, roleRequired } = require("../middlewares/auth");
 const { generateDevisPDF } = require("../utils/pdfGenerator");
+const { sendDevisEmail, sendDevisAcceptedNotification } = require("../utils/mailer");
 
 const router = express.Router();
 
@@ -408,8 +409,15 @@ router.post("/:id/send", roleRequired("admin"), async (req, res) => {
       WHERE id = $1
     `, [id]);
 
-    // TODO: Envoyer l'email avec le PDF
-    console.log(`[DEV] Email envoye a ${devis.client_email} pour le devis ${devis.reference}`);
+    // Envoi de l'email de notification (non bloquant)
+    // Le client consultera et téléchargera le PDF depuis son espace client
+    sendDevisEmail(
+      devis.client_email,
+      devis.client_firstname,
+      devis.reference
+    ).catch(err => console.error("Erreur envoi email devis:", err.message));
+
+    console.log(`[DEV] Email envoyé à ${devis.client_email} pour le devis ${devis.reference}`);
 
     await logAction("ENVOI_DEVIS", req.user.id, {
       devis_id: id,
@@ -441,7 +449,10 @@ router.post("/:id/accept", authRequired, async (req, res) => {
 
     // Recuperer le devis et verifier l'acces
     const devisResult = await pool.query(`
-      SELECT d.*, c.user_id as client_user_id
+      SELECT d.*,
+             c.user_id as client_user_id,
+             c.firstname as client_firstname,
+             c.company_name as client_company
       FROM devis d
       JOIN clients c ON d.client_id = c.id
       WHERE d.id = $1
@@ -482,7 +493,11 @@ router.post("/:id/accept", authRequired, async (req, res) => {
       reference: devis.reference
     });
 
-    // TODO: Envoyer notification a Innov'Events
+    // Notification à l'admin qu'un devis a été accepté (non bloquant)
+    const clientName = `${devis.client_firstname || ""} (${devis.client_company || ""})`.trim();
+    sendDevisAcceptedNotification(devis.reference, clientName).catch(err =>
+      console.error("Erreur envoi notification acceptation:", err.message)
+    );
 
     res.json({ message: "Devis accepte" });
 
