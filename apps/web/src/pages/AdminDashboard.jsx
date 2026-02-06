@@ -273,8 +273,40 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Prochains evenements */}
+            {/* Notes récentes */}
             <div className="col-lg-4">
+              <div className="card h-100">
+                <div className="card-header">
+                  <h6 className="mb-0">Notes recentes</h6>
+                </div>
+                <div className="card-body p-0">
+                  {!stats.dernieres_notes || stats.dernieres_notes.length === 0 ? (
+                    <p className="text-muted text-center py-3">Aucune note</p>
+                  ) : (
+                    <ul className="list-group list-group-flush">
+                      {stats.dernieres_notes.map(n => (
+                        <li key={n.id} className="list-group-item">
+                          <div>
+                            <small className="text-muted">
+                              {n.author_firstname} {n.author_lastname} sur <strong>{n.event_name}</strong>
+                            </small>
+                            <p className="mb-0 mt-1" style={{ fontSize: "0.9rem" }}>
+                              {n.content.length > 80 ? n.content.slice(0, 80) + "..." : n.content}
+                            </p>
+                            <small className="text-muted">{formatDate(n.created_at)}</small>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Prochains evenements */}
+          <div className="row g-4 mt-1">
+            <div className="col-lg-6">
               <div className="card h-100">
                 <div className="card-header">
                   <h6 className="mb-0">Prochains evenements</h6>

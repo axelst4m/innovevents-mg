@@ -83,6 +83,19 @@ router.get("/stats", roleRequired("admin"), async (req, res) => {
       LIMIT 5
     `);
 
+    // Dernières notes ajoutées sur les événements (5)
+    const dernieresNotes = await pool.query(`
+      SELECT n.id, n.content, n.created_at,
+             u.firstname as author_firstname, u.lastname as author_lastname,
+             e.name as event_name, e.id as event_id
+      FROM event_notes n
+      JOIN users u ON n.user_id = u.id
+      JOIN events e ON n.event_id = e.id
+      WHERE n.is_private = FALSE
+      ORDER BY n.created_at DESC
+      LIMIT 5
+    `);
+
     res.json({
       prospects: prospectsStats.rows[0],
       clients: clientsStats.rows[0],
@@ -90,7 +103,8 @@ router.get("/stats", roleRequired("admin"), async (req, res) => {
       events: eventsStats.rows[0],
       derniers_prospects: derniersProspects.rows,
       derniers_devis: derniersDevis.rows,
-      prochains_events: prochainsEvents.rows
+      prochains_events: prochainsEvents.rows,
+      dernieres_notes: dernieresNotes.rows
     });
 
   } catch (err) {
