@@ -327,6 +327,18 @@ router.post("/prospects/:id/convert", async (req, res) => {
 
     const client = clientRows[0];
 
+    // 2b) Si un compte utilisateur existe déjà avec cet email, on le lie
+    const { rows: userRows } = await pool.query(
+      "SELECT id FROM users WHERE email = $1",
+      [prospect.email]
+    );
+    if (userRows.length > 0) {
+      await pool.query(
+        "UPDATE clients SET user_id = $1 WHERE id = $2",
+        [userRows[0].id, client.id]
+      );
+    }
+
     // 3) Marquer le prospect comme converti (lien + date)
     await pool.query(
       `
