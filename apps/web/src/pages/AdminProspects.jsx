@@ -327,7 +327,7 @@ export default function AdminProspects() {
                     className="btn btn-success"
                     onClick={() => navigate(`/admin/devis?view=${detailProspect.devis_id}`)}
                     >
-                    Compléter le devis ({detailProspect.devis_reference})
+                    Compléter le devis{detailProspect.devis_reference ? ` (${detailProspect.devis_reference})` : ''}
                   </button>
                 ) : (
                   <button

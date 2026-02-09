@@ -196,10 +196,13 @@ function formatDate(dateString) {
 // Formater un montant
 function formatMoney(amount) {
   if (amount === null || amount === undefined) return "0,00 €";
-  return parseFloat(amount).toLocaleString("fr-FR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }) + " €";
+  // Formatage manuel pour eviter les problemes d'encodage dans PDFKit
+  // toLocaleString utilise des espaces insecables qui peuvent mal s'afficher
+  const num = parseFloat(amount);
+  const parts = num.toFixed(2).split(".");
+  // Ajouter les separateurs de milliers (espace normal)
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return parts.join(",") + " €";
 }
 
 module.exports = { generateDevisPDF };

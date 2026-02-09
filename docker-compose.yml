@@ -9,6 +9,12 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/innovevents
       - MONGO_URL=mongodb://mongo:27017/innovevents
+      - JWT_SECRET=${JWT_SECRET:-innov_events_secret_key_2024}
+      - SMTP_HOST=${SMTP_HOST:-sandbox.smtp.mailtrap.io}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - SMTP_FROM=${SMTP_FROM:-contact@innovevents.com}
     depends_on:
       - db
       - mongo
@@ -36,7 +42,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=innovevents
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -46,6 +52,22 @@ services:
       - "27017:27017"
     volumes:
       - mongodata:/data/db
+
+  mobile:
+    build:
+      context: ./apps/mobile
+    ports:
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
+    depends_on:
+      - api
+    volumes:
+      - ./apps/mobile:/app
+      - /app/node_modules
 
 volumes:
   pgdata:

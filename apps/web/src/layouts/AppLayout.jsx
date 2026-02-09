@@ -120,6 +120,11 @@ export default function AppLayout() {
                               Moderation Avis
                             </NavLink>
                           </li>
+                          <li>
+                            <NavLink className="dropdown-item" to="/admin/utilisateurs">
+                              Gestion Utilisateurs
+                            </NavLink>
+                          </li>
                           <li><hr className="dropdown-divider" /></li>
                         </>
                       )}
@@ -189,9 +194,17 @@ export default function AppLayout() {
           <small className="minitel-muted">
             © {new Date().getFullYear()} Innov'Events
           </small>
-          <NavLink to="/mentions-legales" className="minitel-link">
-            Mentions légales
-          </NavLink>
+          <div className="d-flex gap-3">
+            <NavLink to="/mentions-legales" className="minitel-link">
+              Mentions légales
+            </NavLink>
+            <NavLink to="/cgu" className="minitel-link">
+              CGU
+            </NavLink>
+            <NavLink to="/cgv" className="minitel-link">
+              CGV
+            </NavLink>
+          </div>
         </div>
       </footer>
     </div>
