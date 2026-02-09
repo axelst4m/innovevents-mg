@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { API_URL } from "../config";
 
 export default function Reviews() {
   const { user, token, isAuthenticated } = useAuth();
@@ -162,6 +162,7 @@ export default function Reviews() {
               <button
                 type="button"
                 className="btn-close"
+                aria-label="Fermer"
                 onClick={() => setFormSuccess(false)}
               ></button>
             </div>
@@ -177,23 +178,27 @@ export default function Reviews() {
                 <form onSubmit={handleSubmit}>
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Votre nom *</label>
+                      <label htmlFor="review-author" className="form-label">Votre nom *</label>
                       <input
                         type="text"
+                        id="review-author"
                         name="author_name"
                         className={`form-control ${formErrors.author_name ? "is-invalid" : ""}`}
                         value={form.author_name}
                         onChange={handleChange}
                         disabled={formLoading}
+                        required
+                        aria-describedby={formErrors.author_name ? "review-author-error" : undefined}
                       />
                       {formErrors.author_name && (
-                        <div className="invalid-feedback">{formErrors.author_name}</div>
+                        <div id="review-author-error" className="invalid-feedback">{formErrors.author_name}</div>
                       )}
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Entreprise</label>
+                      <label htmlFor="review-company" className="form-label">Entreprise</label>
                       <input
                         type="text"
+                        id="review-company"
                         name="author_company"
                         className="form-control"
                         value={form.author_company}
@@ -205,8 +210,8 @@ export default function Reviews() {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Note *</label>
-                    <div className="d-flex gap-2">
+                    <label className="form-label" id="review-rating-label">Note *</label>
+                    <div className="d-flex gap-2" role="group" aria-labelledby="review-rating-label">
                       {[1, 2, 3, 4, 5].map((n) => (
                         <button
                           key={n}
@@ -216,35 +221,41 @@ export default function Reviews() {
                           }`}
                           onClick={() => setForm((prev) => ({ ...prev, rating: n }))}
                           disabled={formLoading}
+                          aria-label={`Note ${n} sur 5`}
+                          title={`${n}/5`}
                         >
-                          <i className={`bi ${form.rating >= n ? "bi-star-fill" : "bi-star"}`}></i>
+                          <i className={`bi ${form.rating >= n ? "bi-star-fill" : "bi-star"}`} aria-hidden="true"></i>
                         </button>
                       ))}
-                      <span className="ms-2 align-self-center">
+                      <span className="ms-2 align-self-center" aria-live="polite">
                         {form.rating}/5
                       </span>
                     </div>
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Titre de votre avis *</label>
+                    <label htmlFor="review-title" className="form-label">Titre de votre avis *</label>
                     <input
                       type="text"
+                      id="review-title"
                       name="title"
                       className={`form-control ${formErrors.title ? "is-invalid" : ""}`}
                       value={form.title}
                       onChange={handleChange}
                       disabled={formLoading}
                       placeholder="Resumez votre experience en quelques mots"
+                      required
+                      aria-describedby={formErrors.title ? "review-title-error" : undefined}
                     />
                     {formErrors.title && (
-                      <div className="invalid-feedback">{formErrors.title}</div>
+                      <div id="review-title-error" className="invalid-feedback">{formErrors.title}</div>
                     )}
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Votre avis *</label>
+                    <label htmlFor="review-content" className="form-label">Votre avis *</label>
                     <textarea
+                      id="review-content"
                       name="content"
                       className={`form-control ${formErrors.content ? "is-invalid" : ""}`}
                       rows="4"
@@ -252,9 +263,11 @@ export default function Reviews() {
                       onChange={handleChange}
                       disabled={formLoading}
                       placeholder="Decrivez votre experience avec Innov'Events..."
+                      required
+                      aria-describedby={formErrors.content ? "review-content-error" : undefined}
                     ></textarea>
                     {formErrors.content && (
-                      <div className="invalid-feedback">{formErrors.content}</div>
+                      <div id="review-content-error" className="invalid-feedback">{formErrors.content}</div>
                     )}
                   </div>
 
@@ -266,12 +279,12 @@ export default function Reviews() {
                     >
                       {formLoading ? (
                         <>
-                          <span className="spinner-border spinner-border-sm me-2"></span>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                           Envoi...
                         </>
                       ) : (
                         <>
-                          <i className="bi bi-send me-2"></i>
+                          <i className="bi bi-send me-2" aria-hidden="true"></i>
                           Envoyer mon avis
                         </>
                       )}

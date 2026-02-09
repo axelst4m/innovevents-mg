@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 
 // Listes des status dispo pour les prospects
@@ -25,8 +26,6 @@ function fmtDate(value) {
 export default function AdminProspects() {
   const navigate = useNavigate();
 
-    // URL de l'API
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     //   Filtres
   const [statusFilter, setStatusFilter] = useState("a_contacter");
@@ -57,7 +56,7 @@ export default function AdminProspects() {
       if (statusFilter) params.set("status", statusFilter);
       params.set("limit", String(limit));
         // Appel API
-      const res = await fetch(`${apiUrl}/api/prospects?${params.toString()}`);
+      const res = await fetch(`${API_URL}/api/prospects?${params.toString()}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Erreur lors du chargement");
         // MàJ état
@@ -80,7 +79,7 @@ export default function AdminProspects() {
         setDetailProspect(null);
 
         try {
-            const res = await fetch(`${apiUrl}/api/prospects/${id}`);
+            const res = await fetch(`${API_URL}/api/prospects/${id}`);
             const data = await res.json();
 
             if (!res.ok) {
@@ -98,7 +97,7 @@ export default function AdminProspects() {
     // Convertit un prospect en client (appelle l'API puis recharge la liste)
     async function convertToClient(prospectId) {
         try {
-            const res = await fetch(`${apiUrl}/api/prospects/${prospectId}/convert`, {
+            const res = await fetch(`${API_URL}/api/prospects/${prospectId}/convert`, {
             method: "POST",
             });
             const data = await res.json();
@@ -121,7 +120,7 @@ export default function AdminProspects() {
     try {
       setUpdatingId(id);
 
-      const res = await fetch(`${apiUrl}/api/prospects/${id}/status`, {
+      const res = await fetch(`${API_URL}/api/prospects/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),

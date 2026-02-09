@@ -16,8 +16,9 @@ export default function AppLayout() {
 
   return (
     <div className="d-flex flex-column min-vh-100 minitel-shell">
+      <a href="#main-content" className="skip-link">Aller au contenu principal</a>
       <header className="border-bottom minitel-header">
-        <nav className="navbar navbar-expand-lg">
+        <nav className="navbar navbar-expand-lg" aria-label="Navigation principale">
           <div className="container">
             <NavLink className="navbar-brand fw-bold minitel-brand" to="/">
               Innov'Events
@@ -83,6 +84,7 @@ export default function AppLayout() {
                       type="button"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
+                      aria-haspopup="true"
                     >
                       {user?.firstname || "Mon compte"}
                     </button>
@@ -181,7 +183,7 @@ export default function AppLayout() {
         </nav>
       </header>
 
-      <main className="flex-grow-1 minitel-main">
+      <main id="main-content" className="flex-grow-1 minitel-main">
         <div className="container">
           <div className="minitel-screen">
             <Outlet />
@@ -189,7 +191,7 @@ export default function AppLayout() {
         </div>
       </main>
 
-      <footer className="border-top py-3 minitel-footer">
+      <footer className="border-top py-3 minitel-footer" role="contentinfo">
         <div className="container d-flex justify-content-between align-items-center">
           <small className="minitel-muted">
             © {new Date().getFullYear()} Innov'Events

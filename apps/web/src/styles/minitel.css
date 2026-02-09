@@ -39,7 +39,7 @@ body {
 .minitel-link:hover,
 .minitel-link:focus-visible {
   background: #cfcfcf;
-  outline: 2px solid #bdbdbd;
+  outline: 2px solid #111;
   outline-offset: 2px;
 }
 
@@ -64,6 +64,8 @@ body {
 .minitel-cta:focus-visible {
   transform: translate(-1px, -1px);
   box-shadow: 3px 3px 0 #666;
+  outline: 2px solid #111;
+  outline-offset: 2px;
 }
 
 /* Main container un peu "cadre écran" */
@@ -77,6 +79,22 @@ body {
   border: 2px solid #111;
   box-shadow: 6px 6px 0 #777;
   padding: 1rem;
+}
+
+/* Lien d'évitement (accessibilité RGAA) */
+.skip-link {
+  position: absolute;
+  top: -50px;
+  left: 0;
+  background: #111;
+  color: #e6e6e6;
+  padding: 8px 16px;
+  z-index: 9999;
+  text-decoration: none;
+  font-weight: bold;
+}
+.skip-link:focus {
+  top: 0;
 }
 
 /* Footer small */

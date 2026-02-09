@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "../config";
 
 const ROLES = [
   { value: "", label: "Tous" },
@@ -21,7 +22,6 @@ function fmtDate(value) {
 }
 
 export default function AdminUsers() {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const token = localStorage.getItem("token");
 
   const [roleFilter, setRoleFilter] = useState("");
@@ -52,7 +52,7 @@ export default function AdminUsers() {
   // Charge les stats
   async function loadStats() {
     try {
-      const res = await fetch(`${apiUrl}/api/users/stats/count`, {
+      const res = await fetch(`${API_URL}/api/users/stats/count`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -70,7 +70,7 @@ export default function AdminUsers() {
       if (roleFilter) params.set("role", roleFilter);
       if (statusFilter) params.set("status", statusFilter);
 
-      const res = await fetch(`${apiUrl}/api/users?${params.toString()}`, {
+      const res = await fetch(`${API_URL}/api/users?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -119,7 +119,7 @@ export default function AdminUsers() {
 
     try {
       if (modalMode === "create") {
-        const res = await fetch(`${apiUrl}/api/users`, {
+        const res = await fetch(`${API_URL}/api/users`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export default function AdminUsers() {
         await load();
         await loadStats();
       } else {
-        const res = await fetch(`${apiUrl}/api/users/${formData.id}`, {
+        const res = await fetch(`${API_URL}/api/users/${formData.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -169,7 +169,7 @@ export default function AdminUsers() {
     }
     setActionLoading(user.id);
     try {
-      const res = await fetch(`${apiUrl}/api/users/${user.id}/toggle-status`, {
+      const res = await fetch(`${API_URL}/api/users/${user.id}/toggle-status`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -191,7 +191,7 @@ export default function AdminUsers() {
     }
     setActionLoading(user.id);
     try {
-      const res = await fetch(`${apiUrl}/api/users/${user.id}/reset-password`, {
+      const res = await fetch(`${API_URL}/api/users/${user.id}/reset-password`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });

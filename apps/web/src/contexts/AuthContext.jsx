@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 // URL de l'API - en dev c'est localhost:3000
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { API_URL } from "../config";
 
 // Creation du contexte
 const AuthContext = createContext(null);
@@ -138,6 +138,26 @@ export function AuthProvider({ children }) {
     return data;
   }
 
+  // Supprimer le compte (RGPD)
+  async function deleteAccount(password) {
+    const res = await fetch(`${API_URL}/api/auth/account`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erreur");
+    }
+
+    return data;
+  }
+
   // Valeurs exposees par le contexte
   const value = {
     user,
@@ -151,7 +171,8 @@ export function AuthProvider({ children }) {
     register,
     logout,
     forgotPassword,
-    changePassword
+    changePassword,
+    deleteAccount
   };
 
   return (

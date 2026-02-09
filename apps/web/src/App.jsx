@@ -27,6 +27,7 @@ import EventDetail from "./pages/EventDetail.jsx";
 
 // Pages communes (authentifié)
 import ChangePassword from "./pages/ChangePassword.jsx";
+import DeleteAccount from "./pages/DeleteAccount.jsx";
 
 // Pages espace client
 import ClientDashboard from "./pages/ClientDashboard.jsx";
@@ -52,6 +53,11 @@ export default function App() {
           {/* Route changement de mot de passe — tous les utilisateurs connectés */}
           <Route path="/changer-mot-de-passe" element={
             <ProtectedRoute roles={["client", "employe", "admin"]}><ChangePassword /></ProtectedRoute>
+          } />
+
+          {/* Route suppression de compte (RGPD) — tous les utilisateurs connectés */}
+          <Route path="/supprimer-compte" element={
+            <ProtectedRoute roles={["client", "employe", "admin"]}><DeleteAccount /></ProtectedRoute>
           } />
 
           {/* Routes admin — accessibles uniquement aux admins */}

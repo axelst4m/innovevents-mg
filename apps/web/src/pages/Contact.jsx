@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { API_URL } from "../config";
 
 export default function Contact() {
   const { user, token } = useAuth();
@@ -101,7 +101,7 @@ export default function Contact() {
             <div className="col-md-4 mb-3">
               <div className="card h-100 text-center">
                 <div className="card-body">
-                  <i className="bi bi-geo-alt fs-2 text-primary mb-2"></i>
+                  <i className="bi bi-geo-alt fs-2 text-primary mb-2" aria-hidden="true"></i>
                   <h6>Adresse</h6>
                   <small className="text-muted">
                     123 Rue de l'Evenementiel<br />
@@ -113,7 +113,7 @@ export default function Contact() {
             <div className="col-md-4 mb-3">
               <div className="card h-100 text-center">
                 <div className="card-body">
-                  <i className="bi bi-telephone fs-2 text-primary mb-2"></i>
+                  <i className="bi bi-telephone fs-2 text-primary mb-2" aria-hidden="true"></i>
                   <h6>Telephone</h6>
                   <small className="text-muted">
                     04 91 XX XX XX
@@ -124,7 +124,7 @@ export default function Contact() {
             <div className="col-md-4 mb-3">
               <div className="card h-100 text-center">
                 <div className="card-body">
-                  <i className="bi bi-envelope fs-2 text-primary mb-2"></i>
+                  <i className="bi bi-envelope fs-2 text-primary mb-2" aria-hidden="true"></i>
                   <h6>Email</h6>
                   <small className="text-muted">
                     contact@innovevents.fr
@@ -141,67 +141,77 @@ export default function Contact() {
             </div>
             <div className="card-body">
               {success && (
-                <div className="alert alert-success">
-                  <i className="bi bi-check-circle me-2"></i>
+                <div className="alert alert-success" role="status" aria-live="polite">
+                  <i className="bi bi-check-circle me-2" aria-hidden="true"></i>
                   Merci pour votre message ! Nous vous repondrons dans les meilleurs delais.
                 </div>
               )}
 
               {serverError && (
-                <div className="alert alert-danger">{serverError}</div>
+                <div className="alert alert-danger" role="alert" aria-live="assertive">{serverError}</div>
               )}
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} noValidate>
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">Prenom *</label>
+                    <label htmlFor="contact-firstname" className="form-label">Prenom *</label>
                     <input
                       type="text"
+                      id="contact-firstname"
                       name="firstname"
                       className={`form-control ${errors.firstname ? "is-invalid" : ""}`}
                       value={form.firstname}
                       onChange={handleChange}
                       disabled={loading}
+                      required
+                      aria-describedby={errors.firstname ? "contact-firstname-error" : undefined}
                     />
                     {errors.firstname && (
-                      <div className="invalid-feedback">{errors.firstname}</div>
+                      <div id="contact-firstname-error" className="invalid-feedback">{errors.firstname}</div>
                     )}
                   </div>
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">Nom *</label>
+                    <label htmlFor="contact-lastname" className="form-label">Nom *</label>
                     <input
                       type="text"
+                      id="contact-lastname"
                       name="lastname"
                       className={`form-control ${errors.lastname ? "is-invalid" : ""}`}
                       value={form.lastname}
                       onChange={handleChange}
                       disabled={loading}
+                      required
+                      aria-describedby={errors.lastname ? "contact-lastname-error" : undefined}
                     />
                     {errors.lastname && (
-                      <div className="invalid-feedback">{errors.lastname}</div>
+                      <div id="contact-lastname-error" className="invalid-feedback">{errors.lastname}</div>
                     )}
                   </div>
                 </div>
 
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">Email *</label>
+                    <label htmlFor="contact-email" className="form-label">Email *</label>
                     <input
                       type="email"
+                      id="contact-email"
                       name="email"
                       className={`form-control ${errors.email ? "is-invalid" : ""}`}
                       value={form.email}
                       onChange={handleChange}
                       disabled={loading}
+                      required
+                      aria-describedby={errors.email ? "contact-email-error" : undefined}
                     />
                     {errors.email && (
-                      <div className="invalid-feedback">{errors.email}</div>
+                      <div id="contact-email-error" className="invalid-feedback">{errors.email}</div>
                     )}
                   </div>
                   <div className="col-md-6 mb-3">
-                    <label className="form-label">Telephone</label>
+                    <label htmlFor="contact-phone" className="form-label">Telephone</label>
                     <input
                       type="tel"
+                      id="contact-phone"
                       name="phone"
                       className="form-control"
                       value={form.phone}
@@ -213,13 +223,16 @@ export default function Contact() {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label">Sujet *</label>
+                  <label htmlFor="contact-subject" className="form-label">Sujet *</label>
                   <select
+                    id="contact-subject"
                     name="subject"
                     className={`form-select ${errors.subject ? "is-invalid" : ""}`}
                     value={form.subject}
                     onChange={handleChange}
                     disabled={loading}
+                    required
+                    aria-describedby={errors.subject ? "contact-subject-error" : undefined}
                   >
                     <option value="">-- Choisir un sujet --</option>
                     <option value="Information generale">Information generale</option>
@@ -230,13 +243,14 @@ export default function Contact() {
                     <option value="Autre">Autre</option>
                   </select>
                   {errors.subject && (
-                    <div className="invalid-feedback">{errors.subject}</div>
+                    <div id="contact-subject-error" className="invalid-feedback">{errors.subject}</div>
                   )}
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label">Message *</label>
+                  <label htmlFor="contact-message" className="form-label">Message *</label>
                   <textarea
+                    id="contact-message"
                     name="message"
                     className={`form-control ${errors.message ? "is-invalid" : ""}`}
                     rows="5"
@@ -244,9 +258,11 @@ export default function Contact() {
                     onChange={handleChange}
                     disabled={loading}
                     placeholder="Decrivez votre demande..."
+                    required
+                    aria-describedby={errors.message ? "contact-message-error" : undefined}
                   ></textarea>
                   {errors.message && (
-                    <div className="invalid-feedback">{errors.message}</div>
+                    <div id="contact-message-error" className="invalid-feedback">{errors.message}</div>
                   )}
                 </div>
 
@@ -258,12 +274,12 @@ export default function Contact() {
                   >
                     {loading ? (
                       <>
-                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                         Envoi en cours...
                       </>
                     ) : (
                       <>
-                        <i className="bi bi-send me-2"></i>
+                        <i className="bi bi-send me-2" aria-hidden="true"></i>
                         Envoyer le message
                       </>
                     )}
@@ -275,7 +291,7 @@ export default function Contact() {
 
           {/* Note RGPD */}
           <p className="text-muted small mt-3">
-            <i className="bi bi-shield-check me-1"></i>
+            <i className="bi bi-shield-check me-1" aria-hidden="true"></i>
             Vos donnees personnelles sont utilisees uniquement pour repondre a votre demande
             conformement a notre politique de confidentialite.
           </p>
