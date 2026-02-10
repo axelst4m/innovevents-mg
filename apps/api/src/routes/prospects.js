@@ -2,11 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const { pool } = require("../db/postgres");
-const { getMongoDb } = require("../db/mongo");
-
-function isEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
+const { validateEmail } = require("../utils/validators");
+const { logAction } = require("../utils/logger");
 
 // Route POST
 
@@ -25,7 +22,7 @@ router.post("/prospects", async (req, res) => {
       message,
     } = req.body || {};
 
-    // Validd simple
+    // Validation simple
     const errors = [];
     const required = {
       company_name,
@@ -46,7 +43,7 @@ router.post("/prospects", async (req, res) => {
       }
     }
 
-    if (email && !isEmail(email)) errors.push({ field: "email", message: "Email invalide" });
+    if (email && !validateEmail(email)) errors.push({ field: "email", message: "Email invalide" });
 
     const participantsInt = Number(participants);
     if (!Number.isInteger(participantsInt) || participantsInt <= 0) {
@@ -82,22 +79,11 @@ router.post("/prospects", async (req, res) => {
     const created = rows[0];
 
     // Log MongoDB
-    try {
-      const mongo = await getMongoDb();
-      await mongo.collection("logs").insertOne({
-        timestamp: new Date(),
-        type_action: "QUOTE_REQUEST_CREATED",
-        id_utilisateur: null,
-        details: {
-          prospect_id: created.id,
-          email: email.trim(),
-          event_type: event_type.trim(),
-        },
-      });
-    } catch (e) {
-      // blok pas la feature si log NoSQL échoue (bug v1)
-      console.error("Mongo log failed:", e.message);
-    }
+    await logAction({ type_action: "QUOTE_REQUEST_CREATED", userId: null, details: {
+      prospect_id: created.id,
+      email: email.trim(),
+      event_type: event_type.trim()
+    } });
 
     return res.status(201).json({
       ok: true,
@@ -116,7 +102,7 @@ router.get("/prospects", async (req, res) => {
   try {
     const { status, limit } = req.query;
 
-    // limit : sécupour éviter des gros dumps
+    // Limite de sécurité pour éviter les gros dumps
     let limitInt = Number(limit || 50);
     if (!Number.isInteger(limitInt) || limitInt <= 0) limitInt = 50;
     if (limitInt > 200) limitInt = 200;
@@ -237,18 +223,11 @@ router.patch("/prospects/:id/status", async (req, res) => {
       return res.status(404).json({ ok: false, error: "Prospect introuvable" });
     }
 
-    // Log Mongo (optionnel, non bloquant)
-    try {
-      const mongo = await getMongoDb();
-      await mongo.collection("logs").insertOne({
-        timestamp: new Date(),
-        type_action: "PROSPECT_STATUS_UPDATED",
-        id_utilisateur: null,
-        details: { prospect_id: id, status: nextStatus },
-      });
-    } catch (e) {
-      console.error("Mongo log failed:", e.message);
-    }
+    // Log MongoDB
+    await logAction({ type_action: "PROSPECT_STATUS_UPDATED", userId: null, details: {
+      prospect_id: id,
+      status: nextStatus
+    } });
 
     return res.json({ ok: true, prospect: rows[0] });
   } catch (e) {
@@ -374,23 +353,13 @@ router.post("/prospects/:id/convert", async (req, res) => {
 
     const devis = devisRows[0];
 
-    // 5) Journalisation NoSQL (Mongo)
-    try {
-      const mongo = await getMongoDb();
-      await mongo.collection("logs").insertOne({
-        timestamp: new Date(),
-        type_action: "CREATION_CLIENT",
-        id_utilisateur: null,
-        details: {
-          client_id: client.id,
-          client_name: `${client.firstname} ${client.lastname}`,
-          devis_id: devis.id,
-          devis_reference: devis.reference
-        },
-      });
-    } catch (e) {
-      console.error("Mongo log failed:", e.message);
-    }
+    // Log MongoDB
+    await logAction({ type_action: "CREATION_CLIENT", userId: null, details: {
+      client_id: client.id,
+      client_name: `${client.firstname} ${client.lastname}`,
+      devis_id: devis.id,
+      devis_reference: devis.reference
+    } });
 
     return res.status(201).json({ ok: true, client, devis });
   } catch (e) {

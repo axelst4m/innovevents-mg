@@ -1,26 +1,9 @@
 const express = require("express");
 const { pool } = require("../db/postgres");
-const { getMongoDb } = require("../db/mongo");
 const { authRequired, roleRequired, authOptional } = require("../middlewares/auth");
+const { logAction } = require("../utils/logger");
 
 const router = express.Router();
-
-// ============================================
-// Log une action dans MongoDB
-// ============================================
-async function logAction(type_action, userId, details) {
-  try {
-    const db = await getMongoDb();
-    await db.collection("logs").insertOne({
-      horodatage: new Date(),
-      type_action,
-      id_utilisateur: userId,
-      details
-    });
-  } catch (err) {
-    console.error("Erreur log MongoDB:", err.message);
-  }
-}
 
 // ============================================
 // GET /api/events - Liste des evenements publics
@@ -247,10 +230,10 @@ router.post("/", roleRequired("admin"), async (req, res) => {
     const event = result.rows[0];
 
     // Log de l'action
-    await logAction("CREATION_EVENEMENT", req.user.id, {
+    await logAction({ type_action: "CREATION_EVENEMENT", userId: req.user.id, details: {
       event_id: event.id,
       event_name: event.name
-    });
+    } });
 
     res.status(201).json({
       message: "Evenement cree avec succes",
@@ -313,11 +296,11 @@ router.put("/:id", roleRequired("admin"), async (req, res) => {
 
     // Log si changement de statut
     if (status && status !== oldEvent.status) {
-      await logAction("MODIFICATION_STATUT_EVENEMENT", req.user.id, {
+      await logAction({ type_action: "MODIFICATION_STATUT_EVENEMENT", userId: req.user.id, details: {
         event_id: event.id,
         ancien_statut: oldEvent.status,
         nouveau_statut: status
-      });
+      } });
     }
 
     res.json({
@@ -347,10 +330,10 @@ router.delete("/:id", roleRequired("admin"), async (req, res) => {
 
     await pool.query("DELETE FROM events WHERE id = $1", [id]);
 
-    await logAction("SUPPRESSION_EVENEMENT", req.user.id, {
+    await logAction({ type_action: "SUPPRESSION_EVENEMENT", userId: req.user.id, details: {
       event_id: event.id,
       event_name: event.name
-    });
+    } });
 
     res.json({ message: "Evenement supprime" });
 

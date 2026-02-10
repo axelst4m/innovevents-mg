@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const { pool } = require("../db/postgres");
-const { getMongoDb } = require("../db/mongo");
 const { authRequired, roleRequired, authOptional } = require("../middlewares/auth");
+const { logAction } = require("../utils/logger");
 
 // ============================================
 // GET /api/reviews - Liste des avis publics (valides uniquement)
@@ -228,21 +228,11 @@ router.post("/", authOptional, async (req, res) => {
     const created = rows[0];
 
     // Log MongoDB
-    try {
-      const mongo = await getMongoDb();
-      await mongo.collection("logs").insertOne({
-        timestamp: new Date(),
-        type_action: "REVIEW_SUBMITTED",
-        id_utilisateur: req.user?.id || null,
-        details: {
-          review_id: created.id,
-          author_name: author_name.trim(),
-          rating: ratingInt
-        }
-      });
-    } catch (e) {
-      console.error("Mongo log failed:", e.message);
-    }
+    await logAction({ type_action: "REVIEW_SUBMITTED", userId: req.user?.id || null, details: {
+      review_id: created.id,
+      author_name: author_name.trim(),
+      rating: ratingInt
+    } });
 
     return res.status(201).json({
       ok: true,
@@ -286,17 +276,9 @@ router.patch("/:id/validate", roleRequired(["admin", "employe"]), async (req, re
     }
 
     // Log
-    try {
-      const mongo = await getMongoDb();
-      await mongo.collection("logs").insertOne({
-        timestamp: new Date(),
-        type_action: "REVIEW_VALIDATED",
-        id_utilisateur: req.user.id,
-        details: { review_id: id }
-      });
-    } catch (e) {
-      console.error("Mongo log failed:", e.message);
-    }
+    await logAction({ type_action: "REVIEW_VALIDATED", userId: req.user.id, details: {
+      review_id: id
+    } });
 
     return res.json({ ok: true, review: rows[0] });
 
@@ -336,17 +318,10 @@ router.patch("/:id/reject", roleRequired(["admin", "employe"]), async (req, res)
     }
 
     // Log
-    try {
-      const mongo = await getMongoDb();
-      await mongo.collection("logs").insertOne({
-        timestamp: new Date(),
-        type_action: "REVIEW_REJECTED",
-        id_utilisateur: req.user.id,
-        details: { review_id: id, reason }
-      });
-    } catch (e) {
-      console.error("Mongo log failed:", e.message);
-    }
+    await logAction({ type_action: "REVIEW_REJECTED", userId: req.user.id, details: {
+      review_id: id,
+      reason
+    } });
 
     return res.json({ ok: true, review: rows[0] });
 

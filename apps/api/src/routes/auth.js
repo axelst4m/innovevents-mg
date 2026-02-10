@@ -2,60 +2,34 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { pool } = require("../db/postgres");
-const { getMongoDb } = require("../db/mongo");
+const { logAction } = require("../utils/logger");
+const { validateEmail, validatePassword } = require("../utils/validators");
+const { generateTempPassword } = require("../utils/password");
 
 const { sendWelcomeEmail, sendPasswordResetEmail } = require("../utils/mailer");
 
 const router = express.Router();
 
-// Config JWT - en prod mettre dans .env
-const JWT_SECRET = process.env.JWT_SECRET || "innov_events_secret_key_2024";
+// Récupérer le limiteur d'authentification depuis app.js
+// Attention : dependance circulaire app -> auth -> app
+// app.authLimiter peut etre undefined si app.js n'a pas fini de charger
+let authLimiter;
+try {
+  const app = require("../app");
+  authLimiter = app.authLimiter;
+} catch (err) {
+  // require a echoue
+}
+if (typeof authLimiter !== "function") {
+  authLimiter = (req, res, next) => next(); // fallback: pas de limitation
+}
+
+// Config JWT — doit etre configure dans .env (pas de valeur par defaut)
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET manquant dans les variables d'environnement");
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = "24h";
-
-// ============================================
-// Validation du mot de passe
-// 8 caracteres min, 1 maj, 1 min, 1 chiffre, 1 special
-// ============================================
-function validatePassword(password) {
-  const minLength = password.length >= 8;
-  const hasUppercase = /[A-Z]/.test(password);
-  const hasLowercase = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-  if (!minLength) return "Le mot de passe doit contenir au moins 8 caracteres";
-  if (!hasUppercase) return "Le mot de passe doit contenir au moins une majuscule";
-  if (!hasLowercase) return "Le mot de passe doit contenir au moins une minuscule";
-  if (!hasNumber) return "Le mot de passe doit contenir au moins un chiffre";
-  if (!hasSpecial) return "Le mot de passe doit contenir au moins un caractere special";
-
-  return null; // pas d'erreur
-}
-
-// ============================================
-// Validation email basique
-// ============================================
-function validateEmail(email) {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email);
-}
-
-// ============================================
-// Log une action dans MongoDB (journalisation)
-// ============================================
-async function logAction(type_action, userId, details) {
-  try {
-    const db = await getMongoDb();
-    await db.collection("logs").insertOne({
-      horodatage: new Date(),
-      type_action,
-      id_utilisateur: userId,
-      details
-    });
-  } catch (err) {
-    console.error("Erreur log MongoDB:", err.message);
-  }
-}
 
 // ============================================
 // POST /api/auth/register - Inscription
@@ -122,11 +96,11 @@ router.post("/register", async (req, res) => {
     }
 
     // Log de l'action
-    await logAction("CREATION_COMPTE", user.id, {
+    await logAction({ type_action: "CREATION_COMPTE", userId: user.id, details: {
       email: user.email,
       role: user.role,
       linked_client_id: linkedClient?.id || null
-    });
+    } });
 
     // Envoi email de bienvenue (non bloquant, on n'attend pas le résultat)
     sendWelcomeEmail(user).catch(err =>
@@ -156,7 +130,7 @@ router.post("/register", async (req, res) => {
 // ============================================
 // POST /api/auth/login - Connexion
 // ============================================
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
@@ -175,11 +149,11 @@ router.post("/login", async (req, res) => {
 
     if (result.rows.length === 0) {
       // Log tentative echouee
-      await logAction("CONNEXION_ECHOUEE", null, {
+      await logAction({ type_action: "CONNEXION_ECHOUEE", userId: null, details: {
         email: email.toLowerCase(),
         ip: clientIp,
         raison: "Email inconnu"
-      });
+      } });
       return res.status(401).json({ error: "Email ou mot de passe incorrect" });
     }
 
@@ -187,22 +161,22 @@ router.post("/login", async (req, res) => {
 
     // Verifier si le compte est actif
     if (!user.is_active) {
-      await logAction("CONNEXION_ECHOUEE", user.id, {
+      await logAction({ type_action: "CONNEXION_ECHOUEE", userId: user.id, details: {
         email: user.email,
         ip: clientIp,
         raison: "Compte desactive"
-      });
+      } });
       return res.status(403).json({ error: "Compte desactive. Contactez l'administrateur." });
     }
 
     // Verifier le mot de passe
     const validPassword = await bcrypt.compare(password, user.password_hash);
     if (!validPassword) {
-      await logAction("CONNEXION_ECHOUEE", user.id, {
+      await logAction({ type_action: "CONNEXION_ECHOUEE", userId: user.id, details: {
         email: user.email,
         ip: clientIp,
         raison: "Mot de passe incorrect"
-      });
+      } });
       return res.status(401).json({ error: "Email ou mot de passe incorrect" });
     }
 
@@ -218,9 +192,9 @@ router.post("/login", async (req, res) => {
     );
 
     // Log connexion reussie
-    await logAction("CONNEXION_REUSSIE", user.id, {
+    await logAction({ type_action: "CONNEXION_REUSSIE", userId: user.id, details: {
       ip: clientIp
-    });
+    } });
 
     res.json({
       message: "Connexion reussie",
@@ -245,7 +219,7 @@ router.post("/login", async (req, res) => {
 // POST /api/auth/forgot-password - Mot de passe oublie
 // Genere un nouveau mot de passe et l'envoie par mail
 // ============================================
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", authLimiter, async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -268,22 +242,7 @@ router.post("/forgot-password", async (req, res) => {
 
     const user = result.rows[0];
 
-    // Generer un mot de passe temporaire aleatoire
-    // Format: 2 lettres maj + 4 chiffres + 2 lettres min + 1 special
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const charsLower = "abcdefghijklmnopqrstuvwxyz";
-    const numbers = "0123456789";
-    const specials = "!@#$%&*";
-
-    let tempPassword = "";
-    tempPassword += chars[Math.floor(Math.random() * chars.length)];
-    tempPassword += chars[Math.floor(Math.random() * chars.length)];
-    for (let i = 0; i < 4; i++) {
-      tempPassword += numbers[Math.floor(Math.random() * numbers.length)];
-    }
-    tempPassword += charsLower[Math.floor(Math.random() * charsLower.length)];
-    tempPassword += charsLower[Math.floor(Math.random() * charsLower.length)];
-    tempPassword += specials[Math.floor(Math.random() * specials.length)];
+    const tempPassword = generateTempPassword();
 
     // Hasher le nouveau mot de passe
     const salt = await bcrypt.genSalt(10);
@@ -298,9 +257,9 @@ router.post("/forgot-password", async (req, res) => {
     );
 
     // Log de l'action
-    await logAction("MOT_DE_PASSE_REINITIALISE", user.id, {
+    await logAction({ type_action: "MOT_DE_PASSE_REINITIALISE", userId: user.id, details: {
       email: user.email
-    });
+    } });
 
     // Envoi du mail avec le mot de passe temporaire
     sendPasswordResetEmail(user, tempPassword).catch(err =>
@@ -386,7 +345,7 @@ router.post("/change-password", async (req, res) => {
     );
 
     // Log
-    await logAction("CHANGEMENT_MOT_DE_PASSE", user.id, {});
+    await logAction({ type_action: "CHANGEMENT_MOT_DE_PASSE", userId: user.id, details: {} });
 
     res.json({ message: "Mot de passe modifie avec succes" });
 
@@ -488,6 +447,115 @@ router.get("/users", async (req, res) => {
   } catch (err) {
     console.error("Erreur /users:", err);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+// ============================================
+// DELETE /api/auth/account - Suppression de compte (RGPD)
+// Anonymise les donnees de l'utilisateur et des clients lies
+// ============================================
+router.delete("/account", async (req, res) => {
+  try {
+    // Recuperer le token depuis le header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Token requis" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    // Verifier le token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({ error: "Token invalide ou expire" });
+    }
+
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ error: "Mot de passe requis" });
+    }
+
+    // Recuperer l'utilisateur
+    const userResult = await pool.query(
+      "SELECT id, password_hash FROM users WHERE id = $1",
+      [decoded.userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "Utilisateur non trouve" });
+    }
+
+    const user = userResult.rows[0];
+
+    // Verifier le mot de passe
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Mot de passe incorrect" });
+    }
+
+    const userId = user.id;
+
+    // Anonymiser les donnees de l'utilisateur
+    // Email -> deleted_<id>@anonymized.com
+    // Nom/Prenom -> "Utilisateur supprime"
+    // is_active -> false
+    const anonymizedEmail = `deleted_${userId}@anonymized.com`;
+
+    await pool.query(
+      `UPDATE users
+       SET email = $1, firstname = $2, lastname = $2, is_active = FALSE, updated_at = NOW()
+       WHERE id = $3`,
+      [anonymizedEmail, "Utilisateur supprimé", userId]
+    );
+
+    // Trouver les clients lies a cet utilisateur
+    const clientsResult = await pool.query(
+      "SELECT id FROM clients WHERE user_id = $1",
+      [userId]
+    );
+
+    // Anonymiser les clients lies
+    if (clientsResult.rows.length > 0) {
+      for (const client of clientsResult.rows) {
+        await pool.query(
+          `UPDATE clients
+           SET company_name = $1, contact_name = $2, email = $3, phone = $4, updated_at = NOW()
+           WHERE id = $5`,
+          ["Entreprise supprimée", "Utilisateur supprimé", anonymizedEmail, null, client.id]
+        );
+
+        // Anonymiser les devis de ce client
+        await pool.query(
+          `UPDATE devis
+           SET client_name = $1, event_contact_name = $2, updated_at = NOW()
+           WHERE client_id = $3`,
+          ["Entreprise supprimée", "Utilisateur supprimé", client.id]
+        );
+
+        // Anonymiser les reviews/avis lies aux devis de ce client
+        await pool.query(
+          `UPDATE reviews
+           SET author_name = $1, updated_at = NOW()
+           WHERE devis_id IN (SELECT id FROM devis WHERE client_id = $2)`,
+          ["Utilisateur supprimé", client.id]
+        );
+      }
+    }
+
+    // Log de l'action
+    await logAction({ type_action: "SUPPRESSION_COMPTE", userId: userId, details: {
+      email: `deleted_${userId}@anonymized.com`,
+      clients_anonymises: clientsResult.rows.length
+    } });
+
+    res.json({ ok: true, message: "Compte supprime et anonymise avec succes" });
+
+  } catch (err) {
+    console.error("Erreur delete account:", err);
+    res.status(500).json({ error: "Erreur serveur lors de la suppression" });
   }
 });
 

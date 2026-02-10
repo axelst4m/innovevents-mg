@@ -1,28 +1,11 @@
 const express = require("express");
 const { pool } = require("../db/postgres");
-const { getMongoDb } = require("../db/mongo");
 const { authRequired, roleRequired } = require("../middlewares/auth");
 const { generateDevisPDF } = require("../utils/pdfGenerator");
 const { sendDevisEmail, sendDevisAcceptedNotification } = require("../utils/mailer");
+const { logAction } = require("../utils/logger");
 
 const router = express.Router();
-
-// ============================================
-// Log une action dans MongoDB
-// ============================================
-async function logAction(type_action, userId, details) {
-  try {
-    const db = await getMongoDb();
-    await db.collection("logs").insertOne({
-      horodatage: new Date(),
-      type_action,
-      id_utilisateur: userId,
-      details
-    });
-  } catch (err) {
-    console.error("Erreur log MongoDB:", err.message);
-  }
-}
 
 // ============================================
 // GET /api/devis - Liste des devis (admin)
@@ -236,11 +219,11 @@ router.post("/", roleRequired("admin"), async (req, res) => {
     // Recuperer le devis mis a jour avec les totaux
     const updatedDevis = await pool.query("SELECT * FROM devis WHERE id = $1", [devis.id]);
 
-    await logAction("CREATION_DEVIS", req.user.id, {
+    await logAction({ type_action: "CREATION_DEVIS", userId: req.user.id, details: {
       devis_id: devis.id,
       reference: devis.reference,
       client_id
-    });
+    } });
 
     res.status(201).json({
       message: "Devis cree avec succes",
@@ -419,12 +402,12 @@ router.post("/:id/send", roleRequired("admin"), async (req, res) => {
 
     console.log(`[DEV] Email envoyé à ${devis.client_email} pour le devis ${devis.reference}`);
 
-    await logAction("ENVOI_DEVIS", req.user.id, {
+    await logAction({ type_action: "ENVOI_DEVIS", userId: req.user.id, details: {
       devis_id: id,
       reference: devis.reference,
       client_email: devis.client_email,
       client_has_account: clientHasAccount
-    });
+    } });
 
     res.json({
       message: clientHasAccount
@@ -488,10 +471,10 @@ router.post("/:id/accept", authRequired, async (req, res) => {
       `, [devis.event_id]);
     }
 
-    await logAction("ACCEPTATION_DEVIS", req.user.id, {
+    await logAction({ type_action: "ACCEPTATION_DEVIS", userId: req.user.id, details: {
       devis_id: id,
       reference: devis.reference
-    });
+    } });
 
     // Notification à l'admin qu'un devis a été accepté (non bloquant)
     const clientName = `${devis.client_firstname || ""} (${devis.client_company || ""})`.trim();
@@ -541,10 +524,10 @@ router.post("/:id/refuse", authRequired, async (req, res) => {
       WHERE id = $1
     `, [id]);
 
-    await logAction("REFUS_DEVIS", req.user.id, {
+    await logAction({ type_action: "REFUS_DEVIS", userId: req.user.id, details: {
       devis_id: id,
       reference: devis.reference
-    });
+    } });
 
     res.json({ message: "Devis refuse" });
 
@@ -589,11 +572,11 @@ router.post("/:id/request-modification", authRequired, async (req, res) => {
       WHERE id = $2
     `, [reason.trim(), id]);
 
-    await logAction("DEMANDE_MODIFICATION_DEVIS", req.user.id, {
+    await logAction({ type_action: "DEMANDE_MODIFICATION_DEVIS", userId: req.user.id, details: {
       devis_id: id,
       reference: devis.reference,
       reason: reason.trim()
-    });
+    } });
 
     res.json({ message: "Demande de modification envoyee" });
 
@@ -653,10 +636,10 @@ router.get("/:id/pdf", authRequired, async (req, res) => {
     devis.lignes = lignesResult.rows;
 
     // Log
-    await logAction("GENERATION_PDF_DEVIS", req.user.id, {
+    await logAction({ type_action: "GENERATION_PDF_DEVIS", userId: req.user.id, details: {
       devis_id: id,
       reference: devis.reference
-    });
+    } });
 
     // Generer le PDF avec pdfkit
     const pdfBuffer = await generateDevisPDF(devis);

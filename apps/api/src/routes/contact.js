@@ -2,13 +2,9 @@ const express = require("express");
 const router = express.Router();
 
 const { pool } = require("../db/postgres");
-const { getMongoDb } = require("../db/mongo");
 const { roleRequired, authOptional } = require("../middlewares/auth");
-
-// Validation email simple
-function isEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
+const { validateEmail } = require("../utils/validators");
+const { logAction } = require("../utils/logger");
 
 // ============================================
 // POST /api/contact - Envoyer un message
@@ -27,7 +23,7 @@ router.post("/", authOptional, async (req, res) => {
       }
     }
 
-    if (email && !isEmail(email)) {
+    if (email && !validateEmail(email)) {
       errors.push({ field: "email", message: "Email invalide" });
     }
 
@@ -59,21 +55,11 @@ router.post("/", authOptional, async (req, res) => {
     const created = rows[0];
 
     // Log MongoDB
-    try {
-      const mongo = await getMongoDb();
-      await mongo.collection("logs").insertOne({
-        timestamp: new Date(),
-        type_action: "CONTACT_MESSAGE_SENT",
-        id_utilisateur: userId,
-        details: {
-          message_id: created.id,
-          email: email.trim().toLowerCase(),
-          subject: subject.trim()
-        }
-      });
-    } catch (e) {
-      console.error("Mongo log failed:", e.message);
-    }
+    await logAction({ type_action: "CONTACT_MESSAGE_SENT", userId: userId, details: {
+      message_id: created.id,
+      email: email.trim().toLowerCase(),
+      subject: subject.trim()
+    } });
 
     return res.status(201).json({
       ok: true,

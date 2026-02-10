@@ -1,6 +1,11 @@
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "innov_events_secret_key_2024";
+// Pas de valeur par defaut : on doit crash si JWT_SECRET n'est pas configure
+// sinon on risque de signer des tokens avec une valeur bidon en prod
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET manquant dans les variables d'environnement");
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // ============================================
 // Middleware: verifier que l'utilisateur est connecte
@@ -14,6 +19,9 @@ function authRequired(req, res, next) {
   }
 
   const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ error: "Token manquant" });
+  }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -45,6 +53,9 @@ function roleRequired(roles) {
     }
 
     const token = authHeader.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "Token manquant" });
+    }
 
     try {
       const decoded = jwt.verify(token, JWT_SECRET);

@@ -1,50 +1,12 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const { pool } = require("../db/postgres");
-const { getMongoDb } = require("../db/mongo");
 const { roleRequired } = require("../middlewares/auth");
+const { logAction } = require("../utils/logger");
+const { validateEmail } = require("../utils/validators");
+const { generateTempPassword } = require("../utils/password");
 
 const router = express.Router();
-
-// Log une action dans MongoDB
-async function logAction(type_action, userId, details) {
-  try {
-    const db = await getMongoDb();
-    await db.collection("logs").insertOne({
-      horodatage: new Date(),
-      type_action,
-      id_utilisateur: userId,
-      details
-    });
-  } catch (err) {
-    console.error("Erreur log MongoDB:", err.message);
-  }
-}
-
-// Validation email
-function validateEmail(email) {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email);
-}
-
-// Generation mot de passe temporaire
-function generateTempPassword() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const charsLower = "abcdefghijklmnopqrstuvwxyz";
-  const numbers = "0123456789";
-  const specials = "!@#$%&*";
-
-  let pwd = "";
-  pwd += chars[Math.floor(Math.random() * chars.length)];
-  pwd += chars[Math.floor(Math.random() * chars.length)];
-  for (let i = 0; i < 4; i++) {
-    pwd += numbers[Math.floor(Math.random() * numbers.length)];
-  }
-  pwd += charsLower[Math.floor(Math.random() * charsLower.length)];
-  pwd += charsLower[Math.floor(Math.random() * charsLower.length)];
-  pwd += specials[Math.floor(Math.random() * specials.length)];
-  return pwd;
-}
 
 // ============================================
 // GET /api/users - Liste tous les utilisateurs (admin only)
@@ -161,11 +123,11 @@ router.post("/", roleRequired("admin"), async (req, res) => {
     const user = result.rows[0];
 
     // Log
-    await logAction("CREATION_UTILISATEUR_ADMIN", req.user.id, {
+    await logAction({ type_action: "CREATION_UTILISATEUR_ADMIN", userId: req.user.id, details: {
       created_user_id: user.id,
       email: user.email,
       role: user.role
-    });
+    } });
 
     // TODO: envoyer email avec mot de passe temporaire
     console.log(`[DEV] Mot de passe temporaire pour ${user.email}: ${tempPassword}`);
@@ -232,10 +194,10 @@ router.put("/:id", roleRequired("admin"), async (req, res) => {
     );
 
     // Log
-    await logAction("MODIFICATION_UTILISATEUR", req.user.id, {
+    await logAction({ type_action: "MODIFICATION_UTILISATEUR", userId: req.user.id, details: {
       modified_user_id: parseInt(id),
       changes: { firstname, lastname, role }
-    });
+    } });
 
     res.json({
       message: "Utilisateur modifie",
@@ -278,10 +240,10 @@ router.patch("/:id/toggle-status", roleRequired("admin"), async (req, res) => {
     );
 
     // Log
-    await logAction(newStatus ? "REACTIVATION_COMPTE" : "DESACTIVATION_COMPTE", req.user.id, {
+    await logAction({ type_action: newStatus ? "REACTIVATION_COMPTE" : "DESACTIVATION_COMPTE", userId: req.user.id, details: {
       target_user_id: parseInt(id),
       email: existing.rows[0].email
-    });
+    } });
 
     res.json({
       message: newStatus ? "Compte reactive" : "Compte desactive",
@@ -321,10 +283,10 @@ router.post("/:id/reset-password", roleRequired("admin"), async (req, res) => {
     );
 
     // Log
-    await logAction("RESET_PASSWORD_ADMIN", req.user.id, {
+    await logAction({ type_action: "RESET_PASSWORD_ADMIN", userId: req.user.id, details: {
       target_user_id: parseInt(id),
       email: existing.rows[0].email
-    });
+    } });
 
     // TODO: envoyer email
     console.log(`[DEV] Nouveau mot de passe pour ${existing.rows[0].email}: ${tempPassword}`);
