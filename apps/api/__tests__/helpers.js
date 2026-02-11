@@ -3,7 +3,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { pool } = require("../src/db/postgres");
 
-const JWT_SECRET = process.env.JWT_SECRET || "innov_events_secret_key_2024";
+// Doit matcher la valeur de JWT_SECRET dans .env.test
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Genere un token JWT pour les tests
 function generateToken(user) {
