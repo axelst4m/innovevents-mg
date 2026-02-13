@@ -103,8 +103,6 @@ jobs:
 
       - name: Build
         working-directory: apps/web
-        env:
-          VITE_API_URL: https://api.innovevents.com
         run: npm run build
 
       - name: Upload build artifact
