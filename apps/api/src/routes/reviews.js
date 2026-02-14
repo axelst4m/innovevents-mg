@@ -39,6 +39,8 @@ router.get("/", async (req, res) => {
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
+    // On paramétrise le LIMIT pour éviter toute injection
+    values.push(limitInt);
     const { rows } = await pool.query(
       `
       SELECT r.id, r.author_name, r.author_company, r.rating, r.title, r.content,
@@ -48,7 +50,7 @@ router.get("/", async (req, res) => {
       LEFT JOIN events e ON r.event_id = e.id
       ${whereSql}
       ORDER BY r.is_featured DESC, r.created_at DESC
-      LIMIT ${limitInt}
+      LIMIT $${values.length}
       `,
       values
     );
@@ -125,6 +127,8 @@ router.get("/all", roleRequired(["admin", "employe"]), async (req, res) => {
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
+    // Même chose ici, LIMIT paramétré
+    values.push(limitInt);
     const { rows } = await pool.query(
       `
       SELECT r.id, r.author_name, r.author_company, r.rating, r.title, r.content,
@@ -138,7 +142,7 @@ router.get("/all", roleRequired(["admin", "employe"]), async (req, res) => {
       LEFT JOIN users u ON r.validated_by = u.id
       ${whereSql}
       ORDER BY r.created_at DESC
-      LIMIT ${limitInt}
+      LIMIT $${values.length}
       `,
       values
     );

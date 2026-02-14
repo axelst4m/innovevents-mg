@@ -103,6 +103,8 @@ router.get("/", roleRequired("admin"), async (req, res) => {
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
+    // On paramétrise le LIMIT pour éviter toute injection
+    values.push(limitInt);
     const { rows } = await pool.query(
       `
       SELECT id, firstname, lastname, email, phone, subject, message,
@@ -110,7 +112,7 @@ router.get("/", roleRequired("admin"), async (req, res) => {
       FROM contact_messages
       ${whereSql}
       ORDER BY created_at DESC
-      LIMIT ${limitInt}
+      LIMIT $${values.length}
       `,
       values
     );

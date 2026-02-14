@@ -117,6 +117,8 @@ router.get("/prospects", async (req, res) => {
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
+    // On paramétrise aussi le LIMIT pour éviter toute injection
+    values.push(limitInt);
     const query = `
       SELECT
         id,
@@ -134,7 +136,7 @@ router.get("/prospects", async (req, res) => {
       FROM prospects
       ${whereSql}
       ORDER BY created_at DESC
-      LIMIT ${limitInt}
+      LIMIT $${values.length}
     `;
 
     const { rows } = await pool.query(query, values);
