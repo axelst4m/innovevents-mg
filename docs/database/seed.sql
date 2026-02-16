@@ -15,17 +15,17 @@ SET session_replication_role = 'replica';
 -- SUPPRESSION DES DONNÉES EXISTANTES
 -- ============================================================================
 
-TRUNCATE TABLE lignes_devis CASCADE;
-TRUNCATE TABLE devis CASCADE;
-TRUNCATE TABLE reviews CASCADE;
-TRUNCATE TABLE contact_messages CASCADE;
-TRUNCATE TABLE event_tasks CASCADE;
-TRUNCATE TABLE event_notes CASCADE;
-TRUNCATE TABLE prestations CASCADE;
-TRUNCATE TABLE events CASCADE;
-TRUNCATE TABLE prospects CASCADE;
-TRUNCATE TABLE clients CASCADE;
-TRUNCATE TABLE users CASCADE;
+TRUNCATE TABLE lignes_devis RESTART IDENTITY CASCADE;
+TRUNCATE TABLE devis RESTART IDENTITY CASCADE;
+TRUNCATE TABLE reviews RESTART IDENTITY CASCADE;
+TRUNCATE TABLE contact_messages RESTART IDENTITY CASCADE;
+TRUNCATE TABLE event_tasks RESTART IDENTITY CASCADE;
+TRUNCATE TABLE event_notes RESTART IDENTITY CASCADE;
+TRUNCATE TABLE prestations RESTART IDENTITY CASCADE;
+TRUNCATE TABLE events RESTART IDENTITY CASCADE;
+TRUNCATE TABLE prospects RESTART IDENTITY CASCADE;
+TRUNCATE TABLE clients RESTART IDENTITY CASCADE;
+TRUNCATE TABLE users RESTART IDENTITY CASCADE;
 
 -- Réactiver les triggers
 SET session_replication_role = 'origin';
@@ -82,10 +82,10 @@ INSERT INTO events (name, description, event_type, theme, start_date, end_date, 
 ('Séminaire Innovation Tech 2026', 'Séminaire annuel de TechCorp Solutions dédié aux innovations en informatique et transformation numérique. Programme complet avec keynotes de leaders du secteur.', 'seminaire', 'Innovation & Numérique', NOW() + INTERVAL '45 days', NOW() + INTERVAL '47 days', 'Paris 8ème - Salle des Congrès', 150, 'https://images.unsplash.com/photo-1552664730-d307ca884978', 'accepte', TRUE, TRUE, 1, NOW() - INTERVAL '30 days', NOW(), 2),
 
 -- Conférence RSE - Terminé, passé
-('Conférence RSE & Développement Durable', 'Conférence majeure organisée par GreenStart SAS sur les enjeux de responsabilité sociale d''entreprise et développement durable.', 'conference', 'RSE & Environnement', NOW() - INTERVAL '20 days', NOW() - INTERVAL '19 days', 'Lyon - Palais de la Bourse', 200, 'https://images.unsplash.com/photo-1540575467063-178f50002154', 'termine', TRUE, TRUE, 2, NOW() - INTERVAL '90 days', NOW() - INTERVAL '19 days', 2),
+('Conférence RSE & Développement Durable', 'Conférence majeure organisée par GreenStart SAS sur les enjeux de responsabilité sociale d''entreprise et développement durable.', 'conference', 'RSE & Environnement', NOW() - INTERVAL '20 days', NOW() - INTERVAL '19 days', 'Lyon - Palais de la Bourse', 200, 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600', 'termine', TRUE, TRUE, 2, NOW() - INTERVAL '90 days', NOW() - INTERVAL '19 days', 2),
 
 -- Soirée des vœux 2026 - En cours, imminente
-('Soirée des Vœux 2026', 'Soirée exclusive de nouvelle année pour les clients et partenaires de TechCorp. Cocktail de prestige, divertissements live et networking.', 'soiree_entreprise', 'Réceptions d''Affaires', NOW() + INTERVAL '8 days', NOW() + INTERVAL '8 days', 'Paris 16ème - Château de Neuilly', 280, 'https://images.unsplash.com/photo-1519167758481-dc8986ba36c4', 'en_cours', TRUE, TRUE, 1, NOW() - INTERVAL '20 days', NOW(), 1),
+('Soirée des Vœux 2026', 'Soirée exclusive de nouvelle année pour les clients et partenaires de TechCorp. Cocktail de prestige, divertissements live et networking.', 'soiree_entreprise', 'Réceptions d''Affaires', NOW() + INTERVAL '8 days', NOW() + INTERVAL '8 days', 'Paris 16ème - Château de Neuilly', 280, 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600', 'en_cours', TRUE, TRUE, 1, NOW() - INTERVAL '20 days', NOW(), 1),
 
 -- Team Building Été 2026 - En attente
 ('Team Building Été 2026', 'Programme de team building complet pour renforcer la cohésion d''équipe avant l''été. Activités multiples: accrobranche, rallye, jeux collaboratifs.', 'team_building', 'Team Building', NOW() + INTERVAL '120 days', NOW() + INTERVAL '122 days', 'Fontainebleau - Parc Aventure & Resort', 85, 'https://images.unsplash.com/photo-1552664730-d307ca884978', 'en_attente', FALSE, FALSE, 3, NOW() - INTERVAL '15 days', NOW(), 3),
