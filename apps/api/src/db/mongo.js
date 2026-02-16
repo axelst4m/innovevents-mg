@@ -15,4 +15,12 @@ async function getMongoDb() {
   return db;
 }
 
-module.exports = { getMongoDb };
+async function closeMongoClient() {
+  if (client) {
+    await client.close();
+    client = null;
+    db = null;
+  }
+}
+
+module.exports = { getMongoDb, closeMongoClient };
