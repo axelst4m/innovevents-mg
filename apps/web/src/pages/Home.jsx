@@ -35,7 +35,7 @@ export default function Home() {
       {/* Présentation */}
       <section className="minitel-screen" style={{ marginBottom: "2rem" }}>
         <h2 style={{ borderBottom: "2px solid #111", paddingBottom: "0.4rem", marginBottom: "1rem" }}>
-          Qui sommes-nous ?
+          Qui sommes nous ?
         </h2>
         <p>
           Fondée par Chloé et José, deux passionnés issus de grandes écoles de communication,
