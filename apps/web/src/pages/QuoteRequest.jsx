@@ -24,6 +24,7 @@ export default function QuoteRequest() {
   // Pre-remplir les champs si l'utilisateur est connecte
   useEffect(() => {
     if (isAuthenticated && user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm(prev => ({
         ...prev,
         firstname: user.firstname || "",
@@ -87,7 +88,7 @@ export default function QuoteRequest() {
 
       setStatus({ state: "success", message: data.message, errors: {} });
       setForm(initial);
-    } catch (err) {
+    } catch {
       setStatus({ state: "error", message: "Erreur réseau / serveur.", errors: {} });
     }
   }

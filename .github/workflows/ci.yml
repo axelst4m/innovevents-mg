@@ -55,7 +55,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: apps/api
-        run: npm ci
+        run: npm install
 
       - name: Create database tables
         env:
