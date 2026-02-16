@@ -236,16 +236,16 @@ INSERT INTO contact_messages (firstname, lastname, email, phone, subject, messag
 
 INSERT INTO reviews (client_id, event_id, author_name, author_company, rating, title, content, status, validated_by, validated_at, rejection_reason, is_featured, created_at, updated_at) VALUES
 -- Avis 1: Validé et en avant (Conférence RSE)
-(2, 2, 'Dr. Pierre Leclerc', 'GreenStart SAS', 5, 'Une conférence exceptionnelle et bien organisée!', 'Innov''Events a orchestré une conférence RSE absolument remarquable. L''organisation était impeccable, les intervenants captivants, et l''ambiance professionnelle. Notre équipe a beaucoup apprécié. Nous les recommandons vivement!', 'validee', 1, NOW() - INTERVAL '15 days', NULL, TRUE, NOW() - INTERVAL '18 days', NOW()),
+(2, 2, 'Dr. Pierre Leclerc', 'GreenStart SAS', 5, 'Une conférence exceptionnelle et bien organisée!', 'Innov''Events a orchestré une conférence RSE absolument remarquable. L''organisation était impeccable, les intervenants captivants, et l''ambiance professionnelle. Notre équipe a beaucoup apprécié. Nous les recommandons vivement!', 'valide', 1, NOW() - INTERVAL '15 days', NULL, TRUE, NOW() - INTERVAL '18 days', NOW()),
 
 -- Avis 2: Validé et en avant (Séminaire TechCorp)
-(1, 1, 'Yvan Martin', 'TechCorp Solutions', 5, 'Séminaire professionnel et bien coordonné', 'Innov''Events a transformé nos souhaits en réalité. Séminaire fluide, ambiance motivante, équipe réactive. Budget bien maîtrisé et transparence totale. Très satisfait du travail réalisé.', 'validee', 2, NOW() - INTERVAL '10 days', NULL, TRUE, NOW() - INTERVAL '12 days', NOW()),
+(1, 1, 'Yvan Martin', 'TechCorp Solutions', 5, 'Séminaire professionnel et bien coordonné', 'Innov''Events a transformé nos souhaits en réalité. Séminaire fluide, ambiance motivante, équipe réactive. Budget bien maîtrisé et transparence totale. Très satisfait du travail réalisé.', 'valide', 2, NOW() - INTERVAL '10 days', NULL, TRUE, NOW() - INTERVAL '12 days', NOW()),
 
 -- Avis 3: En attente de validation
 (3, 4, 'Laurent Dupont', 'MediaSud Agency', 4, 'Bon travail, quelques points à améliorer', 'Devis accepté, préparation en cours. L''équipe est réactive et professionnelle. Nous attendons de voir le résultat final pour la soirée, mais les étapes initiales se déroulent bien.', 'en_attente', NULL, NULL, NULL, FALSE, NOW() - INTERVAL '5 days', NOW()),
 
 -- Avis 4: Refusé
-(1, 2, 'Julien Martin', 'TechCorp Solutions', 2, 'Services de faible qualité lors de la conférence', 'Le service traiteur était insuffisant et certains équipements n''ont pas fonctionné correctement. L''équipe n''a pas réagi rapidement aux incidents.', 'refusee', 1, NOW() - INTERVAL '7 days', 'Avis ne reflète pas la qualité réelle du service fourni. Détails techniques contestés.', FALSE, NOW() - INTERVAL '8 days', NOW() - INTERVAL '7 days');
+(1, 2, 'Julien Martin', 'TechCorp Solutions', 2, 'Services de faible qualité lors de la conférence', 'Le service traiteur était insuffisant et certains équipements n''ont pas fonctionné correctement. L''équipe n''a pas réagi rapidement aux incidents.', 'refuse', 1, NOW() - INTERVAL '7 days', 'Avis ne reflète pas la qualité réelle du service fourni. Détails techniques contestés.', FALSE, NOW() - INTERVAL '8 days', NOW() - INTERVAL '7 days');
 
 -- ============================================================================
 -- Réinitialiser les séquences pour que les prochains INSERT fonctionnent
