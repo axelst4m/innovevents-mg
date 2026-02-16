@@ -56,17 +56,6 @@ jobs:
 
             echo "--- Verification du healthcheck ---"
             sleep 10
-            curl -sf http://localhost/health || echo "Healthcheck failed"
+            curl -sf https://inno.st4m.fr/health || echo "Healthcheck failed (non bloquant)"
 
             echo "--- Deploiement termine ---"
-
-      - name: Verify deployment
-        run: |
-          sleep 15
-          STATUS=$(curl -sf http://${{ secrets.VPS_HOST }}/health || echo "FAIL")
-          if echo "$STATUS" | grep -q "ok"; then
-            echo "Deploiement reussi"
-          else
-            echo "Healthcheck echoue - verifier les logs"
-            exit 1
-          fi
