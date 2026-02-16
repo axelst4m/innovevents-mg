@@ -21,13 +21,13 @@ services:
       - "traefik.http.routers.innovevents.rule=Host(`${DEPLOY_HOST}`)"
       - "traefik.http.routers.innovevents.entrypoints=websecure"
       - "traefik.http.routers.innovevents.tls=true"
-      - "traefik.http.routers.innovevents.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.innovevents.tls.certresolver=le"
       - "traefik.http.services.innovevents.loadbalancer.server.port=80"
       # Redirection HTTP -> HTTPS
       - "traefik.http.routers.innovevents-http.rule=Host(`${DEPLOY_HOST}`)"
       - "traefik.http.routers.innovevents-http.entrypoints=web"
-      - "traefik.http.routers.innovevents-http.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.innovevents-http.middlewares=innovevents-redirect-https"
+      - "traefik.http.middlewares.innovevents-redirect-https.redirectscheme.scheme=https"
 
   api:
     build:
