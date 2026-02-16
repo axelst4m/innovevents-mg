@@ -152,11 +152,11 @@ export default function ClientDashboard() {
                       {derniersDevis.map(d => (
                         <tr key={d.id}>
                           <td className="fw-bold">{d.reference}</td>
-                          <td>{d.event_name || "—"}</td>
+                          <td>{d.event_name || "-"}</td>
                           <td>
                             {d.total_ttc
                               ? `${parseFloat(d.total_ttc).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`
-                              : "—"}
+                              : "-"}
                           </td>
                           <td>
                             <span className={`badge bg-${STATUS_COLORS[d.status] || "secondary"}`}>
@@ -210,7 +210,7 @@ export default function ClientDashboard() {
                 <strong>Membre depuis :</strong>{" "}
                 {user?.created_at
                   ? new Date(user.created_at).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })
-                  : "—"}
+                  : "-"}
               </p>
               <Link to="/changer-mot-de-passe" className="btn btn-outline-secondary btn-sm w-100">
                 Changer mon mot de passe

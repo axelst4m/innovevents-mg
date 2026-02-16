@@ -50,17 +50,17 @@ export default function App() {
           <Route path="/cgu" element={<CGU />} />
           <Route path="/cgv" element={<CGV />} />
 
-          {/* Route changement de mot de passe — tous les utilisateurs connectés */}
+          {/* Route changement de mot de passe -tous les utilisateurs connectés */}
           <Route path="/changer-mot-de-passe" element={
             <ProtectedRoute roles={["client", "employe", "admin"]}><ChangePassword /></ProtectedRoute>
           } />
 
-          {/* Route suppression de compte (RGPD) — tous les utilisateurs connectés */}
+          {/* Route suppression de compte (RGPD) -tous les utilisateurs connectés */}
           <Route path="/supprimer-compte" element={
             <ProtectedRoute roles={["client", "employe", "admin"]}><DeleteAccount /></ProtectedRoute>
           } />
 
-          {/* Routes admin — accessibles uniquement aux admins */}
+          {/* Routes admin -accessibles uniquement aux admins */}
           <Route path="/admin/dashboard" element={
             <ProtectedRoute roles={["admin"]}><AdminDashboard /></ProtectedRoute>
           } />
@@ -83,7 +83,7 @@ export default function App() {
             <ProtectedRoute roles={["admin"]}><AdminUsers /></ProtectedRoute>
           } />
 
-          {/* Routes employé — accessibles aux employés et admins */}
+          {/* Routes employé -accessibles aux employés et admins */}
           <Route path="/employe/dashboard" element={
             <ProtectedRoute roles={["employe", "admin"]}><EmployeDashboard /></ProtectedRoute>
           } />
@@ -91,7 +91,7 @@ export default function App() {
             <ProtectedRoute roles={["employe", "admin"]}><EventDetail /></ProtectedRoute>
           } />
 
-          {/* Routes espace client — accessibles aux clients (et admin pour debug) */}
+          {/* Routes espace client -accessibles aux clients (et admin pour debug) */}
           <Route path="/espace-client" element={
             <ProtectedRoute roles={["client", "admin"]}><ClientDashboard /></ProtectedRoute>
           } />

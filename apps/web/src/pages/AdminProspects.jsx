@@ -314,7 +314,7 @@ export default function AdminProspects() {
 
                     <p><strong>Message :</strong></p>
                     <p className="border rounded p-2 bg-light">
-                        {detailProspect.message || "—"}
+                        {detailProspect.message || "-"}
                     </p>
                     </>
                 ) : null}
