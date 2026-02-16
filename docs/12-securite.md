@@ -342,27 +342,47 @@ Les logs MongoDB doivent être :
 
 ---
 
-## 8. Améliorations possibles et recommandations
+## 8. Sécurité de l'infrastructure
 
-### 8.1 HTTPS obligatoire en production
+### 8.1 DNS et proxy Cloudflare
 
-**Action requise** :
-```javascript
-// Dans app.js (à ajouter en prod)
-app.use((req, res, next) => {
-  if (req.header('x-forwarded-proto') !== 'https') {
-    res.redirect(`https://${req.header('host')}${req.url}`);
-  } else {
-    next();
-  }
-});
-```
+Le domaine `st4m.fr` est géré via Cloudflare. Le sous-domaine `inno.st4m.fr` pointe vers le VPS via un enregistrement DNS de type A.
 
-- Rediriger tout trafic HTTP vers HTTPS
-- Obtenir un certificat SSL (Let's Encrypt gratuit)
-- Implémenter HSTS (Strict-Transport-Security)
+![Configuration DNS Cloudflare](images/cloudflare_DNS.png)
 
-### 8.2 Authentification multi-facteurs (2FA)
+Le mode **Proxied** (nuage orange) a été activé initialement pour bénéficier de la protection DDoS et du CDN Cloudflare. Cependant, ce mode créait un **conflit avec Traefik** pour la génération des certificats SSL Let's Encrypt : Cloudflare interceptait les requêtes ACME challenge, empêchant Traefik de prouver la propriété du domaine. Le mode a donc été repassé en **DNS only** pour que Traefik gère directement le SSL de bout en bout.
+
+### 8.2 Reverse proxy Traefik et HTTPS
+
+Traefik est déployé sur le VPS en tant que reverse proxy :
+
+- **Certificats SSL** : Générés automatiquement via Let's Encrypt (ACME HTTP-01 challenge)
+- **Redirection HTTP → HTTPS** : Automatique via entrypoint redirect
+- **Routage** : Labels Docker dans `docker-compose.prod.yml` définissent les règles de routage
+- **Isolation réseau** : Les containers communiquent sur un réseau Docker interne, seul Traefik est exposé
+
+### 8.3 Conteneurisation et monitoring
+
+Les containers de production sont supervisés via **Portainer** :
+
+![Containers en production - Portainer](images/portainer.png)
+
+L'architecture en containers isole chaque service :
+
+| Container | Image | Rôle |
+|-----------|-------|------|
+| inno-event-api-1 | inno-event-api | API Node.js / Express |
+| inno-event-db-1 | postgres:16-alpine | Base de données PostgreSQL |
+| inno-event-mongo-1 | mongo:7 | Base NoSQL pour les logs |
+| inno-event-web-1 | inno-event-web | Frontend React (servi par Nginx) |
+
+Le container PostgreSQL dispose d'un **healthcheck** intégré qui vérifie la disponibilité du service.
+
+---
+
+## 9. Améliorations possibles et recommandations
+
+### 9.1 Authentification multi-facteurs (2FA)
 
 Prochaine phase de sécurisation :
 - Code TOTP (Time-based One-Time Password) via authenticateur
@@ -371,7 +391,7 @@ Prochaine phase de sécurisation :
 
 **Lib recommandée** : `speakeasy`, `qrcode`
 
-### 8.3 Refresh tokens
+### 9.2 Refresh tokens
 
 Implémenter une rotation de tokens :
 - Token d'accès court terme (15 minutes)
@@ -380,28 +400,29 @@ Implémenter une rotation de tokens :
 
 **Route** : `POST /api/auth/refresh`
 
-### 8.4 Content Security Policy (CSP) améliorée
+### 9.3 Content Security Policy (CSP) personnalisée
 
-Ajouter une CSP stricte pour limiter les sources de contenu :
+Helmet est déjà en place avec les headers par défaut. Une CSP plus stricte pourrait être ajoutée :
 
 ```javascript
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
     scriptSrc: ["'self'"],
-    styleSrc: ["'self'", "'unsafe-inline'"], // À affiner
+    styleSrc: ["'self'", "'unsafe-inline'"],
     imgSrc: ["'self'", "data:", "https:"],
   }
 }));
 ```
 
-### 8.5 Audit et monitoring
+### 9.4 Dashboard de logs de sécurité
 
-- Dashboard de logs de sécurité (admin uniquement)
-- Alertes sur événements suspects (5+ connexions échouées)
-- Métriques de sécurité (uptime, tentatives d'attaque)
+Les logs MongoDB et le monitoring Portainer sont en place. Une prochaine étape serait d'ajouter :
+- Un dashboard admin dédié pour visualiser les logs de sécurité
+- Des alertes automatiques sur événements suspects (5+ connexions échouées)
+- Des métriques de sécurité (uptime, tentatives d'attaque)
 
-### 8.6 Chiffrement des données sensibles au repos
+### 9.5 Chiffrement des données sensibles au repos
 
 Pour les données très sensibles (numéros de téléphone, adresses) :
 ```javascript
@@ -413,7 +434,7 @@ function encryptData(data, masterKey) {
 }
 ```
 
-### 8.7 Politique de mot de passe (gestion de l'expiration)
+### 9.6 Politique de mot de passe (gestion de l'expiration)
 
 À implémenter :
 - Expiration tous les 90 jours
@@ -422,7 +443,7 @@ function encryptData(data, masterKey) {
 
 ---
 
-## 9. Checklist de déploiement en production
+## 10. Checklist de déploiement en production
 
 - [ ] Définir `JWT_SECRET` dans `.env` (clé forte, 32+ caractères)
 - [ ] Définir `FRONTEND_URL` pour la whitelist CORS
@@ -437,7 +458,7 @@ function encryptData(data, masterKey) {
 
 ---
 
-## 10. Références et ressources
+## 11. Références et ressources
 
 - **OWASP Top 10** : https://owasp.org/www-project-top-ten/
 - **bcryptjs** : https://www.npmjs.com/package/bcryptjs
@@ -449,4 +470,4 @@ function encryptData(data, masterKey) {
 ---
 
 **Document créé pour le projet TP - Concepteur Développeur d'Applications**
-**Dernière mise à jour : 2024**
+**Dernière mise à jour : Février 2026**

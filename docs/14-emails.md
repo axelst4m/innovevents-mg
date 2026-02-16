@@ -102,19 +102,19 @@ Les captures ci-dessous montrent les emails recus dans l'inbox Mailtrap lors des
 
 ### Email de bienvenue (inscription)
 
-![Email de bienvenue](mail_bienvenue.png)
+![Email de bienvenue](images/mail_bienvenue.png)
 
 ### Email d'envoi de devis au client
 
-![Email envoi devis](mail_devis.png)
+![Email envoi devis](images/mail_devis.png)
 
 ### Email de notification d'acceptation de devis
 
-![Email acceptation devis](devis_accepté.png)
+![Email acceptation devis](images/devis_accepté.png)
 
 ### Email de reinitialisation de mot de passe
 
-![Email reset password](mail_reinitialisation_mdp.png)
+![Email reset password](images/mail_reinitialisation_mdp.png)
 
 ## Securite
 

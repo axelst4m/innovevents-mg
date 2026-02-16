@@ -46,13 +46,10 @@ innovevents-manager/
 │   │   ├── nginx.conf       # Config nginx production
 │   │   └── Dockerfile
 │   └── mobile/              # Frontend React Native
-├── docs/                    # Documentation technique
-│   ├── database/            # Scripts SQL
-│   ├── SECURITY.md          # Sécurité et bonnes pratiques
-│   ├── ARCHITECTURE.md      # Architecture technique
-│   ├── COMPTES_TEST.md      # Comptes de test et credentials
-│   ├── CICD.md              # Pipeline CI/CD
-│   └── *.md                 # Docs par module
+├── docs/                    # Documentation technique (01 à 18)
+│   ├── database/            # Scripts SQL (001 à 008 + seed)
+│   ├── images/              # Captures d'écran
+│   └── XX-nom-module.md     # Docs numérotées par thème
 ├── scripts/
 │   └── deploy.sh            # Script de déploiement
 ├── docker-compose.yml       # Compose de développement
@@ -129,7 +126,7 @@ L'application est ensuite accessible via l'IP du VPS (Traefik route les requetes
 | admin@ino.fr | Admin123? | Admin |
 | client@test.fr | Client123! | Client |
 
-Voir `docs/COMPTES_TEST.md` pour plus de détails.
+Voir `docs/17-comptes-test.md` pour plus de détails.
 
 ## Tests
 
@@ -167,7 +164,7 @@ Secrets GitHub requis : `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_PROJECT_PATH
 - Helmet.js pour les headers HTTP
 - RGPD : suppression de compte et des donnees personnelles
 
-Voir `docs/SECURITY.md` pour le detail complet.
+Voir `docs/12-securite.md` pour le detail complet.
 
 ## Fonctionnalités principales
 
@@ -241,11 +238,11 @@ La doc technique est dans le dossier `docs/`. Chaque module a son fichier :
 - `03-authentification.md` : système JWT
 - `04-evenements.md` : gestion des événements
 - `05-05-conversion_prospect_client.md` : Processus de conversion prospect => client
-- `WORKFLOW_DEVIS.md` : cycle de vie complet d'un devis
-- `SECURITY.md` : sécurité et bonnes pratiques
-- `ARCHITECTURE.md` : architecture technique
-- `COMPTES_TEST.md` : comptes de test et credentials
-- `CICD.md` : pipeline CI/CD
+- `13-workflow-devis.md` : cycle de vie complet d'un devis
+- `12-securite.md` : sécurité et bonnes pratiques
+- `06-architecture.md` : architecture technique
+- `17-comptes-test.md` : comptes de test et credentials
+- `16-cicd.md` : pipeline CI/CD
 
 ## Kanban
 

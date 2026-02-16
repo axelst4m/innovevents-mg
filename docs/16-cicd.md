@@ -76,7 +76,7 @@ Vérifie la configuration de l'app mobile Expo.
 
 Voici un exemple de pipeline CD qui s'execute avec succes apres un push sur main :
 
-![Pipeline CD reussie](CICD_success.png)
+![Pipeline CD reussie](images/CICD_success.png)
 
 ### Jobs
 
@@ -100,6 +100,14 @@ Déploie l'application complète (API + frontend) sur le VPS via SSH.
 - Le frontend est buildé par Vite puis servi par Nginx
 - Nginx fait aussi reverse proxy : `/api/*` → container API
 - Traefik gère le HTTPS et les certificats Let's Encrypt
+
+### Monitoring des containers
+
+Les containers de production sont supervisés via Portainer :
+
+![Containers en production - Portainer](images/portainer.png)
+
+Les 4 containers du stack `inno-event` (api, db, mongo, web) tournent sur le VPS, chacun isolé sur le réseau Docker interne.
 
 ## Configuration des secrets GitHub
 
