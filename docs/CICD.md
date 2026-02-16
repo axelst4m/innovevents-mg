@@ -78,38 +78,24 @@ Vérifie la configuration de l'app mobile Expo.
 
 #### 1. test
 
-Réutilise le workflow CI pour s'assurer que les tests passent.
+Réutilise le workflow CI pour s'assurer que les tests passent avant tout déploiement.
 
-#### 2. deploy-api
+#### 2. deploy
 
-Déploie l'API sur l'hébergeur configuré.
+Déploie l'application complète (API + frontend) sur le VPS via SSH.
 
-**Options de déploiement** :
-- Fly.io (configuré par défaut)
-- Docker Registry + Railway/Render
-- Autre plateforme PaaS
+**Méthode** : connexion SSH au VPS avec `appleboy/ssh-action`, puis :
+1. `git pull origin main` pour récupérer le code
+2. `docker compose -f docker-compose.prod.yml build --no-cache` pour builder les images
+3. `docker compose -f docker-compose.prod.yml up -d` pour redémarrer les containers
+4. Nettoyage des anciennes images Docker
+5. Vérification du healthcheck
 
-**Secrets requis** :
-- `FLY_API_TOKEN` : Token d'authentification Fly.io
-
-#### 3. deploy-web
-
-Déploie le frontend sur l'hébergeur configuré.
-
-**Options de déploiement** :
-- Vercel (configuré par défaut)
-- Netlify
-- Fly.io (static)
-
-**Secrets requis** :
-- `VERCEL_TOKEN` : Token Vercel
-- `VERCEL_ORG_ID` : ID de l'organisation Vercel
-- `VERCEL_PROJECT_ID` : ID du projet Vercel
-- `API_URL` : URL de l'API en production
-
-#### 4. notify
-
-Envoie une notification du résultat du déploiement (optionnel Slack).
+**Architecture de production** :
+- L'API tourne dans un container Node.js
+- Le frontend est buildé par Vite puis servi par Nginx
+- Nginx fait aussi reverse proxy : `/api/*` → container API
+- Traefik gère le HTTPS et les certificats Let's Encrypt
 
 ## Configuration des secrets GitHub
 
@@ -120,12 +106,10 @@ Pour configurer les secrets dans GitHub :
 
 | Secret | Description |
 |--------|-------------|
-| `FLY_API_TOKEN` | Token API Fly.io |
-| `VERCEL_TOKEN` | Token Vercel |
-| `VERCEL_ORG_ID` | ID organisation Vercel |
-| `VERCEL_PROJECT_ID` | ID projet Vercel |
-| `API_URL` | URL de l'API en prod |
-| `SLACK_WEBHOOK` | (optionnel) Webhook Slack |
+| `VPS_HOST` | IP ou hostname du VPS |
+| `VPS_USER` | Utilisateur SSH sur le VPS |
+| `VPS_SSH_KEY` | Clé privée SSH (ed25519 ou rsa) |
+| `VPS_PROJECT_PATH` | Chemin du projet sur le VPS (ex: `/opt/innovevents`) |
 
 ## Flux de travail Git
 
@@ -148,10 +132,25 @@ feature/* ──┬──> dev ──────> main
 - **dev** : Développement, tests CI
 - **feature/*** : Fonctionnalités en cours
 
+### Convention de commits
+
+Le projet suit la convention **Conventional Commits** pour garder un historique lisible et cohérent. Chaque message de commit commence par un préfixe qui indique la nature du changement :
+
+| Préfixe | Usage | Exemple |
+|---------|-------|---------|
+| `feat` | Nouvelle fonctionnalité | `feat: ajout page espace employé` |
+| `fix` | Correction de bug | `fix: correction calcul TVA devis > 999€` |
+| `docs` | Documentation uniquement | `docs: mise à jour workflow devis` |
+| `test` | Ajout ou modification de tests | `test: ajout tests devis et events` |
+| `chore` | Maintenance technique (dépendances, config, lock files...) | `chore: sync package-lock.json` |
+| `ci` | Changements CI/CD | `ci: mise à jour pipeline GitHub Actions` |
+
+Les messages sont rédigés en français, de manière claire et concise.
+
 ### Processus de développement
 
 1. Créer une branche depuis `dev` : `git checkout -b feature/ma-fonctionnalite`
-2. Développer et commiter
+2. Développer et commiter (en respectant la convention ci-dessus)
 3. Pousser et créer une PR vers `dev`
 4. Les tests CI s'exécutent automatiquement
 5. Après review et merge dans `dev`, tester en local
@@ -189,22 +188,15 @@ open coverage/lcov-report/index.html
 
 ## Déploiement manuel
 
-En cas de besoin, le déploiement peut être effectué manuellement :
-
-### API sur Fly.io
+En cas de besoin, le déploiement peut être effectué manuellement en SSH sur le VPS :
 
 ```bash
-cd apps/api
-flyctl auth login
-flyctl deploy
-```
-
-### Frontend sur Vercel
-
-```bash
-cd apps/web
-npm run build
-npx vercel --prod
+ssh user@vps-host
+cd /opt/innovevents
+git pull origin main
+docker compose -f docker-compose.prod.yml build --no-cache
+docker compose -f docker-compose.prod.yml up -d
+docker image prune -f
 ```
 
 ## Troubleshooting
