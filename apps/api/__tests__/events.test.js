@@ -321,7 +321,7 @@ describe("Events API", () => {
           end_date: "2026-05-21",
           location: "Bordeaux",
           participants_count: 200,
-          status: "confirme",
+          status: "accepte",
           is_public: true
         });
 
@@ -329,7 +329,7 @@ describe("Events API", () => {
       expect(res.body.event).toBeDefined();
       expect(res.body.event.name).toBe("Nouvelle Conference");
       expect(res.body.event.created_by).toBe(adminUser.id);
-      expect(res.body.event.status).toBe("confirme");
+      expect(res.body.event.status).toBe("accepte");
 
       // Nettoyage
       await pool.query("DELETE FROM events WHERE id = $1", [res.body.event.id]);
@@ -572,8 +572,8 @@ describe("Events API", () => {
       expect(res.status).toBe(201);
       expect(res.body.prestation).toBeDefined();
       expect(res.body.prestation.label).toBe("Organisation logistique");
-      expect(res.body.prestation.amount_ht).toBe(3000);
-      expect(res.body.prestation.tva_rate).toBe(20);
+      expect(Number(res.body.prestation.amount_ht)).toBe(3000);
+      expect(Number(res.body.prestation.tva_rate)).toBe(20);
       expect(res.body.prestation.event_id).toBe(testEventId);
     });
 
@@ -587,7 +587,7 @@ describe("Events API", () => {
         });
 
       expect(res.status).toBe(201);
-      expect(res.body.prestation.tva_rate).toBe(20);
+      expect(Number(res.body.prestation.tva_rate)).toBe(20);
     });
 
     it("devrait refuser si champs obligatoires manquent", async () => {

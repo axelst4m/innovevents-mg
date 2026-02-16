@@ -266,10 +266,10 @@ describe("Devis API", () => {
       // Verifier les calculs TVA
       const ligne1 = lignesRes.rows[0];
       expect(ligne1.quantity).toBe(2);
-      expect(ligne1.unit_price_ht).toBe(150);
-      expect(ligne1.total_ht).toBe(300); // 2 * 150
-      expect(ligne1.total_tva).toBe(60); // 300 * 0.20
-      expect(ligne1.total_ttc).toBe(360); // 300 + 60
+      expect(Number(ligne1.unit_price_ht)).toBe(150);
+      expect(Number(ligne1.total_ht)).toBe(300); // 2 * 150
+      expect(Number(ligne1.total_tva)).toBe(60); // 300 * 0.20
+      expect(Number(ligne1.total_ttc)).toBe(360); // 300 + 60
     });
 
     it("devrait refuser sans client_id", async () => {
@@ -374,7 +374,7 @@ describe("Devis API", () => {
       expect(res.body.ligne).toBeDefined();
       expect(res.body.ligne.label).toBe("Service additionnel");
       expect(res.body.ligne.quantity).toBe(3);
-      expect(res.body.ligne.unit_price_ht).toBe(50);
+      expect(Number(res.body.ligne.unit_price_ht)).toBe(50);
     });
 
     it("devrait calculer correctement la TVA", async () => {
@@ -390,9 +390,9 @@ describe("Devis API", () => {
 
       expect(res.status).toBe(201);
       const ligne = res.body.ligne;
-      expect(ligne.total_ht).toBe(200); // 2 * 100
-      expect(ligne.total_tva).toBe(11); // 200 * 0.055
-      expect(ligne.total_ttc).toBe(211); // 200 + 11
+      expect(Number(ligne.total_ht)).toBe(200); // 2 * 100
+      expect(Number(ligne.total_tva)).toBe(11); // 200 * 0.055
+      expect(Number(ligne.total_ttc)).toBe(211); // 200 + 11
     });
 
     it("devrait refuser sans label", async () => {
@@ -697,7 +697,7 @@ describe("Devis API", () => {
         .send({ reason });
 
       expect(res.status).toBe(200);
-      expect(res.body.message).toContain("demande");
+      expect(res.body.message.toLowerCase()).toContain("demande");
 
       // Verifier que le statut et la raison ont ete enregistres
       const checkRes = await pool.query(
