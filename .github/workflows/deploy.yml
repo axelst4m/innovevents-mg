@@ -51,6 +51,12 @@ jobs:
             docker compose -f docker-compose.prod.yml build --no-cache
             docker compose -f docker-compose.prod.yml up -d
 
+            echo "--- Initialisation / mise a jour des tables ---"
+            sleep 5
+            for f in docs/database/0*.sql; do
+              docker compose -f docker-compose.prod.yml exec -T db psql -U postgres -d innovevents < "$f"
+            done
+
             echo "--- Nettoyage des anciennes images ---"
             docker image prune -f
 

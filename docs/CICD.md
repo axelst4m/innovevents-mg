@@ -74,6 +74,10 @@ Vérifie la configuration de l'app mobile Expo.
 
 **Concurrence** : Un seul déploiement à la fois (groupe `production`)
 
+Voici un exemple de pipeline CD qui s'execute avec succes apres un push sur main :
+
+![Pipeline CD reussie](CICD_success.png)
+
 ### Jobs
 
 #### 1. test
