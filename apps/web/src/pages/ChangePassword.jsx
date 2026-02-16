@@ -80,7 +80,7 @@ export default function ChangePassword() {
         }
       }, 2000);
 
-    } catch (err) {
+    } catch (_err) {
       setError("Erreur de connexion au serveur");
     } finally {
       setLoading(false);

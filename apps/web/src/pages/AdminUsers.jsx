@@ -84,6 +84,7 @@ export default function AdminUsers() {
   useEffect(() => {
     load();
     loadStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleFilter, statusFilter]);
 
   // Ouvre le modal creation

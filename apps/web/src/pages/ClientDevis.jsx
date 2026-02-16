@@ -15,7 +15,7 @@ const DEVIS_STATUSES = [
 ];
 
 export default function ClientDevis() {
-  const { token, isAuthenticated, user } = useAuth();
+  const { token, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Redirection si pas connecte
@@ -63,6 +63,7 @@ export default function ClientDevis() {
     if (token) {
       fetchDevis();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   // Voir le detail

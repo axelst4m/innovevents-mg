@@ -50,6 +50,7 @@ export default function AdminMessages() {
     if (token && isAdmin) {
       fetchMessages();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, isAdmin, showArchived]);
 
   // Marquer comme lu

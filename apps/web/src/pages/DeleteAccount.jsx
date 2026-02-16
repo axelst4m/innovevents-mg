@@ -56,7 +56,7 @@ export default function DeleteAccount() {
         navigate("/");
       }, 500);
 
-    } catch (err) {
+    } catch (_err) {
       setError("Erreur de connexion au serveur");
     } finally {
       setLoading(false);

@@ -130,6 +130,7 @@ export default function AdminDevis() {
       // Nettoyer l'URL
       setSearchParams({});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, clients]);
 
   // Ouvrir automatiquement le detail si ?view=ID dans l'URL
@@ -140,6 +141,7 @@ export default function AdminDevis() {
       // Nettoyer l'URL
       setSearchParams({});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, devisList]);
 
   useEffect(() => {
@@ -148,6 +150,7 @@ export default function AdminDevis() {
       fetchClients();
       fetchEvents();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, statusFilter, clientFilter]);
 
   // Gestion formulaire

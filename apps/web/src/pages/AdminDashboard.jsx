@@ -42,6 +42,7 @@ export default function AdminDashboard() {
     if (token && isAdmin) {
       fetchStats();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, isAdmin]);
 
   // Formatage
@@ -62,7 +63,7 @@ export default function AdminDashboard() {
     });
   }
 
-  function getStatusBadge(status, type) {
+  function getStatusBadge(status, _type) {
     const colors = {
       // Prospects
       a_contacter: "warning",

@@ -67,7 +67,7 @@ export default function EmployeDashboard() {
         setClients(clientsData.clients || []);
       }
 
-    } catch (err) {
+    } catch (_err) {
       setError("Erreur de chargement des donnees");
     } finally {
       setLoading(false);
@@ -78,6 +78,7 @@ export default function EmployeDashboard() {
     if (token && (isAdmin || isEmploye)) {
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, isAdmin, isEmploye]);
 
   // Changer le statut d'une tache

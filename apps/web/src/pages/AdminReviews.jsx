@@ -64,6 +64,7 @@ export default function AdminReviews() {
     if (token && (isAdmin || isEmploye)) {
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, isAdmin, isEmploye]);
 
   // Valider un avis

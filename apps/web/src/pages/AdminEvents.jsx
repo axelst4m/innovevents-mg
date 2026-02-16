@@ -104,6 +104,7 @@ export default function AdminEvents() {
       fetchEvents();
       fetchClients();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, statusFilter]);
 
   // Gestion du formulaire

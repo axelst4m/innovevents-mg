@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { API_URL } from "../config";
 
 export default function Reviews() {
-  const { user, token, isAuthenticated } = useAuth();
+  const { user, token } = useAuth();
 
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState(null);
