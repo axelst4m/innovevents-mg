@@ -2,7 +2,7 @@
 -- Innov'Events - Fichier de seed de base de données
 -- Données de démonstration pour le projet Innov'Events
 -- Tous les mots de passe sont hachés avec bcrypt (10 rounds)
--- Hash utilisé: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+-- Hash utilisé: $2a$10$ZNanCe0rXitEhFh65G7hyeLtTHPPoJsl201/HwqwIEsGpOUKdN.4i
 -- Correspond au mot de passe: Password123!
 -- ============================================================================
 
@@ -36,16 +36,16 @@ SET session_replication_role = 'origin';
 
 INSERT INTO users (email, password_hash, firstname, lastname, role, is_active, must_change_password, created_at, updated_at) VALUES
 -- Admin
-('chloe.durand@innovevents.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Chloé', 'Durand', 'admin', TRUE, FALSE, NOW(), NOW()),
+('chloe.durand@innovevents.com', '$2a$10$ZNanCe0rXitEhFh65G7hyeLtTHPPoJsl201/HwqwIEsGpOUKdN.4i', 'Chloé', 'Durand', 'admin', TRUE, FALSE, NOW(), NOW()),
 
 -- Employés
-('maxime.leroy@innovevents.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Maxime', 'Leroy', 'employe', TRUE, FALSE, NOW(), NOW()),
-('sarah.benali@innovevents.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Sarah', 'Benali', 'employe', TRUE, TRUE, NOW(), NOW()),
+('maxime.leroy@innovevents.com', '$2a$10$ZNanCe0rXitEhFh65G7hyeLtTHPPoJsl201/HwqwIEsGpOUKdN.4i', 'Maxime', 'Leroy', 'employe', TRUE, FALSE, NOW(), NOW()),
+('sarah.benali@innovevents.com', '$2a$10$ZNanCe0rXitEhFh65G7hyeLtTHPPoJsl201/HwqwIEsGpOUKdN.4i', 'Sarah', 'Benali', 'employe', TRUE, TRUE, NOW(), NOW()),
 
 -- Clients
-('yvan.martin@techcorp.fr', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Yvan', 'Martin', 'client', TRUE, FALSE, NOW(), NOW()),
-('julie.moreau@greenstart.fr', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Julie', 'Moreau', 'client', TRUE, FALSE, NOW(), NOW()),
-('thomas.petit@mediasud.fr', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Thomas', 'Petit', 'client', TRUE, FALSE, NOW(), NOW());
+('yvan.martin@techcorp.fr', '$2a$10$ZNanCe0rXitEhFh65G7hyeLtTHPPoJsl201/HwqwIEsGpOUKdN.4i', 'Yvan', 'Martin', 'client', TRUE, FALSE, NOW(), NOW()),
+('julie.moreau@greenstart.fr', '$2a$10$ZNanCe0rXitEhFh65G7hyeLtTHPPoJsl201/HwqwIEsGpOUKdN.4i', 'Julie', 'Moreau', 'client', TRUE, FALSE, NOW(), NOW()),
+('thomas.petit@mediasud.fr', '$2a$10$ZNanCe0rXitEhFh65G7hyeLtTHPPoJsl201/HwqwIEsGpOUKdN.4i', 'Thomas', 'Petit', 'client', TRUE, FALSE, NOW(), NOW());
 
 -- ============================================================================
 -- 2. CRÉATION DES CLIENTS (3 total)
