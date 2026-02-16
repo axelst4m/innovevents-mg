@@ -41,7 +41,7 @@ export default function ClientDashboard() {
         if (res.ok) {
           setDevisList(data.devis || []);
         }
-      } catch (_err) {
+      } catch {
         setError("Impossible de charger vos devis");
       } finally {
         setLoading(false);

@@ -67,7 +67,7 @@ export default function EmployeDashboard() {
         setClients(clientsData.clients || []);
       }
 
-    } catch (_err) {
+    } catch {
       setError("Erreur de chargement des donnees");
     } finally {
       setLoading(false);

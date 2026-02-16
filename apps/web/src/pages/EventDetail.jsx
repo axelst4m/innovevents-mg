@@ -117,6 +117,7 @@ export default function EventDetail() {
     if (token && id) {
       loadAll();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, id]);
 
   // Ajouter une note

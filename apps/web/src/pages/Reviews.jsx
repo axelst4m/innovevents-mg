@@ -107,7 +107,7 @@ export default function Reviews() {
         content: ""
       });
 
-    } catch (err) {
+    } catch {
       setError("Erreur de connexion au serveur");
     } finally {
       setFormLoading(false);

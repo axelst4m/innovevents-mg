@@ -63,6 +63,7 @@ export default function AdminDashboard() {
     });
   }
 
+  // eslint-disable-next-line no-unused-vars
   function getStatusBadge(status, _type) {
     const colors = {
       // Prospects

@@ -79,7 +79,7 @@ export default function Contact() {
         message: ""
       });
 
-    } catch (_err) {
+    } catch {
       setServerError("Erreur de connexion au serveur");
     } finally {
       setLoading(false);

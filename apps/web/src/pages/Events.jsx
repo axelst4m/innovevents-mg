@@ -72,6 +72,7 @@ export default function Events() {
   // Charger au montage et quand les filtres changent
   useEffect(() => {
     fetchEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   // Gestion des changements de filtres
