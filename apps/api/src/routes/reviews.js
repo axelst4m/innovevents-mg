@@ -16,25 +16,25 @@ router.get("/", async (req, res) => {
     if (!Number.isInteger(limitInt) || limitInt <= 0) limitInt = 20;
     if (limitInt > 100) limitInt = 100;
 
-    const where = ["status = 'valide'"];
+    const where = ["r.status = 'valide'"];
     const values = [];
 
-    // Filtres
+    // Filtres (prefixe r. pour eviter les ambiguites avec le JOIN events)
     if (rating) {
       const ratingInt = Number(rating);
       if (ratingInt >= 1 && ratingInt <= 5) {
         values.push(ratingInt);
-        where.push(`rating = $${values.length}`);
+        where.push(`r.rating = $${values.length}`);
       }
     }
 
     if (event_id) {
       values.push(Number(event_id));
-      where.push(`event_id = $${values.length}`);
+      where.push(`r.event_id = $${values.length}`);
     }
 
     if (featured === "true") {
-      where.push("is_featured = TRUE");
+      where.push("r.is_featured = TRUE");
     }
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
