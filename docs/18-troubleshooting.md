@@ -159,6 +159,24 @@ docker compose up -d
 
 ## 4. CI/CD GitHub Actions
 
+### Probleme : deploiement inutile sur modification de documentation
+
+**Symptome** : un push sur `main` contenant uniquement des modifications de documentation (docs/, README, .gitignore) declenche le workflow CD et redeploy les containers.
+
+**Cause** : le workflow `deploy.yml` se declenchait sur tout push vers `main`, sans filtrer les chemins modifies.
+
+**Solution** : ajouter un filtre `paths` pour ne deployer que si du code applicatif change :
+
+```yaml
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'docker-compose.prod.yml'
+      - '.github/workflows/**'
+```
+
 ### Probleme : le workflow CD ne se declenche pas
 
 **Symptome** : seul le workflow CI apparait dans l'onglet Actions, le CD n'apparait jamais.
@@ -225,3 +243,23 @@ afterAll(async () => {
 **Cause** : le test utilisait le statut `'confirme'` qui n'existe pas dans l'enum `event_status`. Les valeurs valides sont : `brouillon`, `en_attente`, `accepte`, `en_cours`, `termine`, `annule`.
 
 **Solution** : utiliser une valeur d'enum existante (`'accepte'`).
+
+## 6. Generation PDF
+
+### Probleme : montants > 999 EUR mal affiches
+
+**Symptome** : les montants s'affichaient mal dans les PDF generes. Par exemple "1 200 EUR" devenait "1/200 EUR".
+
+**Cause** : `toLocaleString("fr-FR")` utilise des espaces insecables (caractere Unicode U+202F) comme separateur de milliers. PDFKit interpretait mal ce caractere.
+
+**Solution** : reecrire la fonction `formatMoney()` avec un formatage manuel qui utilise des espaces classiques.
+
+## 7. Donnees de test
+
+### Probleme : tests qui reinitialisent le compte admin
+
+**Symptome** : apres chaque lancement des tests, le mot de passe du compte admin etait reinitialise et ne correspondait plus au mot de passe attendu.
+
+**Cause** : un test pour la fonctionnalite "mot de passe oublie" utilisait le vrai compte admin au lieu d'un utilisateur de test dedie.
+
+**Solution** : toujours utiliser des comptes de test dedies, jamais les comptes reels de l'application.

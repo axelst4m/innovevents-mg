@@ -2,7 +2,7 @@
 
 Application web de gestion pour l'agence evenementielle Innov'Events. Elle permet de gerer les prospects, clients, devis et evenements.
 
-Le projet est developpe dans le cadre du TP de developpement fullstack. L'objectif etait de remplacer le systeme actuel base sur Excel et Word par une vraie application web.
+Le projet est developpe dans le cadre du TP de developpement fullstack. 
 
 ## Stack technique
 
@@ -50,8 +50,6 @@ innovevents-manager/
 │   ├── database/            # Scripts SQL (001 a 008 + seed)
 │   ├── images/              # Captures d'ecran
 │   └── XX-nom-module.md     # Docs numerotees par theme
-├── scripts/
-│   └── deploy.sh            # Script de deploiement
 ├── docker-compose.yml       # Compose de developpement
 ├── docker-compose.prod.yml  # Compose de production
 ├── .env.production.example  # Template variables production
@@ -226,18 +224,6 @@ Toutes les actions importantes sont loguees dans MongoDB (collection `logs`). On
 - Les actions RGPD (suppression de compte)
 
 Cela permet de garder un historique complet et de detecter les comportements anormaux.
-
-## Problemes rencontres
-
-Quelques problemes rencontres pendant le developpement :
-
-**Bug des montants > 999 EUR dans les PDF**
-
-Les montants s'affichaient mal dans les PDF generes. Par exemple "1 200 EUR" devenait "1/200 EUR". Le probleme venait de `toLocaleString("fr-FR")` qui utilise des espaces insecables comme separateur de milliers, mal interpretes par PDFKit. On a reecrit la fonction `formatMoney()` avec un formatage manuel.
-
-**Tests qui reinitialisent le compte admin**
-
-Un test pour la fonctionnalite "mot de passe oublie" utilisait le vrai compte admin au lieu d'un utilisateur de test. A chaque lancement des tests, le mot de passe admin etait reinitialise. La solution : toujours utiliser des comptes de test dedies.
 
 ## Ameliorations possibles
 
