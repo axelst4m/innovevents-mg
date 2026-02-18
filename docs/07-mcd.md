@@ -214,12 +214,38 @@ Avis clients sur les événements.
 | is_featured | BOOLEAN | Mis en avant sur le site |
 | created_at | TIMESTAMPTZ | Date de création |
 
-### notes et tasks
+### event_notes
 
-Pour le suivi interne des événements. Les employés peuvent ajouter des notes et créer des tâches.
+Notes collaboratives liees a un evenement. Les employes et admins peuvent ajouter des notes pour le suivi interne.
 
-**Notes** : contenu libre lié à un événement (ou note globale)
-**Tasks** : tâches assignables avec statut (a_faire, en_cours, terminee) et priorité
+| Colonne | Type | Description |
+|---------|------|-------------|
+| id | BIGSERIAL | PK |
+| event_id | BIGINT | FK -> events (CASCADE) |
+| user_id | BIGINT | FK -> users (CASCADE) |
+| content | TEXT | Contenu de la note |
+| is_private | BOOLEAN | Note privee (visible uniquement par l'auteur) |
+| created_at | TIMESTAMPTZ | Date de creation |
+| updated_at | TIMESTAMPTZ | Derniere modif |
+
+### event_tasks
+
+Taches assignables liees a un evenement. Permet le suivi des actions a realiser pour chaque event.
+
+| Colonne | Type | Description |
+|---------|------|-------------|
+| id | BIGSERIAL | PK |
+| event_id | BIGINT | FK -> events (CASCADE) |
+| assigned_to | BIGINT | FK -> users (SET NULL si user supprime) |
+| created_by | BIGINT | FK -> users (CASCADE) |
+| title | VARCHAR(255) | Titre de la tache |
+| description | TEXT | Description detaillee |
+| priority | VARCHAR(20) | basse, normale, haute, urgente |
+| status | VARCHAR(50) | a_faire, en_cours, terminee, annulee |
+| due_date | DATE | Date limite |
+| completed_at | TIMESTAMPTZ | Date de completion |
+| created_at | TIMESTAMPTZ | Date de creation |
+| updated_at | TIMESTAMPTZ | Derniere modif |
 
 ## Relations et cardinalités
 
@@ -253,10 +279,9 @@ CREATE TYPE event_status AS ENUM (
   'en_cours', 'termine', 'annule'
 );
 
--- Statuts de tâche
-CREATE TYPE task_status AS ENUM (
-  'a_faire', 'en_cours', 'termine'
-);
+-- Statuts de tache (VARCHAR dans la table, pas d'ENUM)
+-- Valeurs: 'a_faire', 'en_cours', 'terminee', 'annulee'
+-- Priorites: 'basse', 'normale', 'haute', 'urgente'
 
 -- Statuts de devis
 CREATE TYPE devis_status AS ENUM (

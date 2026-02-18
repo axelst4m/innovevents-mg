@@ -14,9 +14,9 @@ Le projet est développé dans le cadre du TP de développement fullstack. L'obj
 - PDFKit pour la génération des devis PDF
 
 **Frontend**
-- React 18 avec Vite
-- React Router pour la navigation
-- CSS vanilla (pas de framework CSS)
+- React 19 avec Vite
+- React Router v7 pour la navigation
+- Bootstrap 5 pour le style et les composants UI
 
 **Infra**
 - Docker et Docker Compose

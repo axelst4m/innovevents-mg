@@ -9,7 +9,7 @@ Innov'Events Manager est une application de gestion d'événements conçue selon
 ```
 innovevents-manager/
 ├── apps/api/       # Backend Express.js (Port 3000)
-├── apps/web/       # Frontend React 18 + Vite (Port 5173)
+├── apps/web/       # Frontend React 19 + Vite + Bootstrap 5 (Port 5173)
 ├── apps/mobile/    # Application mobile React Native / Expo (Ports 19000-19002)
 ├── db/             # PostgreSQL 16 Alpine (Port 5433)
 └── mongo/          # MongoDB 7 (Port 27017)
@@ -32,7 +32,7 @@ Le monorepo centralise l'ensemble du projet dans un seul référentiel, facilita
 ```mermaid
 graph TB
     subgraph "Clients"
-        Web["🌐 Application Web<br/>React 18 + Vite"]
+        Web["🌐 Application Web<br/>React 19 + Vite"]
         Mobile["📱 Application Mobile<br/>React Native / Expo"]
     end
 
@@ -64,17 +64,18 @@ graph TB
 
 ## 3. Choix techniques justifiés
 
-### 3.1 Frontend : React 18 + Vite
+### 3.1 Frontend : React 19 + Vite + Bootstrap 5
 
-**Décisions :**
-- **React 18** : bibliothèque UI composable, écosystème mature, nombreux packages disponibles
-- **Vite** : bundler ultra-rapide, HMR (Hot Module Reload) quasi-instantané, démarrage dev rapide
+**Decisions :**
+- **React 19** : bibliotheque UI composable, ecosysteme mature, nombreux packages disponibles
+- **Vite** : bundler ultra-rapide, HMR (Hot Module Reload) quasi-instantane, demarrage dev rapide
+- **Bootstrap 5** : framework CSS responsive pour un prototypage rapide et professionnel
 
 **Justifications :**
-- Vite offre une expérience développeur supérieure à Webpack (moins de 300ms pour rebuild)
-- React 18 apporte les Suspense et la concurrence (bien que partiellement exploitées ici)
-- Écosystème npm riche pour formulaires, validation, requêtes HTTP, etc.
-- CSS vanilla sans framework externe pour maîtrise totale du style
+- Vite offre une experience developpeur superieure a Webpack (moins de 300ms pour rebuild)
+- React 19 apporte des ameliorations de performance par rapport a React 19 (version utilisee initialement avant mise a jour)
+- Ecosysteme npm riche pour formulaires, validation, requetes HTTP, etc.
+- Bootstrap 5 permet un rendu professionnel avec grille responsive, composants predefinis (modals, cartes, tableaux, formulaires) et classes utilitaires
 
 ### 3.2 Backend : Express.js
 
@@ -158,17 +159,17 @@ graph TB
 
 **Cas d'usage : devis, factures, certificats d'événement**
 
-### 3.8 CSS Vanilla (pas de Tailwind/Bootstrap)
+### 3.8 Bootstrap 5
 
-**Décisions :**
-- Feuilles CSS classiques, pas de framework CSS
+**Decisions :**
+- Utilisation de Bootstrap 5 comme framework CSS principal
 
 **Justifications :**
-- Apprentissage du CSS pur (important pour étudiants)
-- Maîtrise totale du rendu et du poids fichier
-- Pas de dépendance à un framework tiers
-- Build time plus court (pas de compilation Tailwind)
-- Classes CSS simples, lisible pour maintenance
+- Grille responsive 12 colonnes pour adaptation mobile/desktop
+- Composants predefinis (modals, cartes, tableaux, formulaires, alertes, badges) qui accelerent le developpement
+- Systeme de classes utilitaires (spacing, flexbox, text alignment)
+- Compatibilite navigateurs geree par le framework
+- Documentation complete et communaute large
 
 ---
 
@@ -604,7 +605,8 @@ prospects ──(conversion)──> clients ──(lien 1:1)──> users
 ```sql
 event_type      → ENUM('seminaire', 'conference', 'soiree_entreprise', 'team_building', 'inauguration', 'autre')
 event_status    → ENUM('brouillon', 'en_attente', 'accepte', 'en_cours', 'termine', 'annule')
-task_status     → ENUM('a_faire', 'en_cours', 'termine')
+task_status     → VARCHAR('a_faire', 'en_cours', 'terminee', 'annulee')
+task_priority   → VARCHAR('basse', 'normale', 'haute', 'urgente')
 devis_status    → ENUM('brouillon', 'envoye', 'en_etude', 'modification', 'accepte', 'refuse')
 prospect_status → ENUM('a_contacter', 'contacte', 'qualifie', 'refuse')
 review_status   → ENUM('en_attente', 'valide', 'refuse')
