@@ -1,4 +1,4 @@
-# Charte Graphique — Innov'Events
+# Charte Graphique - Innov'Events
 
 ## Concept créatif
 
@@ -55,12 +55,7 @@ Ce choix est cohérent avec l'esthétique terminal. On ne charge aucune police e
 
 ### Boutons (`.minitel-cta`)
 
-```
-┌──────────────────┐
-│  Texte du bouton │  ← fond #111, texte #e6e6e6
-└──────────────────┘
-  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ← ombre portée 2px décalée (#666)
-```
+![Bouton CTA Minitel](images/minitel-cta.png)
 
 Style "touche de clavier" :
 - Bordure : 2px solid #111
@@ -72,6 +67,8 @@ Style "touche de clavier" :
 
 ### Liens de navigation (`.minitel-link`)
 
+![Liens de navigation Minitel - etat hover](images/minitel-link_hover.png)
+
 - Pas de soulignement (text-decoration: none)
 - Couleur : #111
 - Padding : 0.25rem 0.4rem
@@ -80,14 +77,7 @@ Style "touche de clavier" :
 
 ### Cartes / Écrans (`.minitel-screen`)
 
-```
-┌──────────────────────────┐
-│                          │  ← fond #efefef
-│   Contenu de la carte    │  ← bordure 2px solid #111
-│                          │
-└──────────────────────────┘
-  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ← ombre 6px 6px 0 #777
-```
+![Carte ecran Minitel](images/minitel-screen.png)
 
 Les zones de contenu imitent un écran de terminal :
 - Fond : #efefef

@@ -24,7 +24,7 @@ if (typeof authLimiter !== "function") {
   authLimiter = (req, res, next) => next(); // fallback: pas de limitation
 }
 
-// Config JWT — doit etre configure dans .env (pas de valeur par defaut)
+// Config JWT - doit etre configure dans .env (pas de valeur par defaut)
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET manquant dans les variables d'environnement");
 }

@@ -1,4 +1,4 @@
-# DOC TECHNIQUE — Création d’un prospect (Demande de devis)
+# DOC TECHNIQUE - Création d’un prospect (Demande de devis)
 
 Cette documentation décrit le fonctionnement technique de la fonctionnalité "Demande de devis" : du formulaire Front à l'insertion en base relationnelle et à la journalisation NoSQL.
 
@@ -20,15 +20,15 @@ Permettre à un visiteur du site Innov'Events de soumettre une demande de devis.
 
 ## Fichiers impliqués et rôles
 
-- **Script SQL** — `docs/database/001_create_tables.sql`
+- **Script SQL** - `docs/database/001_create_tables.sql`
   - Contient la création de la table `prospects` et les index.
-- **Point d'entrée API** — `apps/api/src/index.js`
+- **Point d'entrée API** - `apps/api/src/index.js`
   - Initialise Express, configure les middlewares, monte les routes et démarre le serveur. Les routes métier sont sous le préfixe `/api`.
-- **Route métier** — `apps/api/src/routes/prospects.js`
+- **Route métier** - `apps/api/src/routes/prospects.js`
   - Validation des champs, insertion PostgreSQL, création du log MongoDB, gestion des réponses HTTP.
-- **Connexion PostgreSQL** — `apps/api/src/db/postgres.js`
+- **Connexion PostgreSQL** - `apps/api/src/db/postgres.js`
   - Instancie et partage un pool de connexions via la librairie `pg`.
-- **Connexion MongoDB** — `apps/api/src/db/mongo.js`
+- **Connexion MongoDB** - `apps/api/src/db/mongo.js`
   - Gère la connexion MongoDB centralisée et réutilisable.
 
 
