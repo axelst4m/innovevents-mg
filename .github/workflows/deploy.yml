@@ -12,6 +12,10 @@ name: CD - Deploy
 on:
   push:
     branches: [main]
+    paths:
+      - 'apps/**'
+      - 'docker-compose.prod.yml'
+      - '.github/workflows/**'
 
 # Empecher les deploiements simultans
 concurrency:
