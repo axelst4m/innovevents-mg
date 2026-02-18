@@ -73,7 +73,7 @@ graph TB
 
 **Justifications :**
 - Vite offre une experience developpeur superieure a Webpack (moins de 300ms pour rebuild)
-- React 19 apporte des ameliorations de performance par rapport a React 19 (version utilisee initialement avant mise a jour)
+- React 19 apporte des ameliorations de performance par rapport a React 18 (version utilisee initialement avant mise a jour)
 - Ecosysteme npm riche pour formulaires, validation, requetes HTTP, etc.
 - Bootstrap 5 permet un rendu professionnel avec grille responsive, composants predefinis (modals, cartes, tableaux, formulaires) et classes utilitaires
 
