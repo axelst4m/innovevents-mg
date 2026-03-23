@@ -19,7 +19,7 @@ export default function AppLayout() {
       <a href="#main-content" className="skip-link">Aller au contenu principal</a>
       <header className="border-bottom minitel-header">
         <nav className="navbar navbar-expand-lg" aria-label="Navigation principale">
-          <div className="container">
+          <div className="container-fluid px-4">
             <NavLink className="navbar-brand fw-bold minitel-brand" to="/">
               Innov'Events
             </NavLink>
@@ -184,7 +184,7 @@ export default function AppLayout() {
       </header>
 
       <main id="main-content" className="flex-grow-1 minitel-main">
-        <div className="container">
+        <div className="container-fluid px-4">
           <div className="minitel-screen">
             <Outlet />
           </div>
@@ -192,7 +192,7 @@ export default function AppLayout() {
       </main>
 
       <footer className="border-top py-3 minitel-footer" role="contentinfo">
-        <div className="container d-flex justify-content-between align-items-center">
+        <div className="container-fluid px-4 d-flex justify-content-between align-items-center">
           <small className="minitel-muted">
             © {new Date().getFullYear()} Innov'Events
           </small>
