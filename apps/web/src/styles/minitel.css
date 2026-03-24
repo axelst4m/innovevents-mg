@@ -97,6 +97,17 @@ body {
   top: 0;
 }
 
+/* Page Avis : correction du bug responsive.
+   Sous le breakpoint lg (992px), la sidebar stats passe sous la liste d'avis.
+   On desactive alors le comportement sticky pour eviter le chevauchement au scroll. */
+@media (max-width: 991.98px) {
+  .reviews-stats.sticky-top {
+    position: static;
+    top: auto !important;
+    margin-bottom: 1.5rem;
+  }
+}
+
 /* Footer small */
 .minitel-muted {
   color: #333 !important;

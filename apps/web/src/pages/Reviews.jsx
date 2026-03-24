@@ -361,7 +361,7 @@ export default function Reviews() {
 
         {/* Sidebar avec stats */}
         <div className="col-lg-4">
-          <div className="card sticky-top" style={{ top: "20px" }}>
+          <div className="card sticky-top reviews-stats" style={{ top: "20px" }}>
             <div className="card-header">
               <h5 className="mb-0">Statistiques</h5>
             </div>
