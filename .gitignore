@@ -6,3 +6,10 @@ archive/
 ~$*
 ECF_*.docx
 ECF_*.pdf
+
+# Documents de travail internes (ne pas livrer au jury)
+docs/ORAL/
+docs/DP_analyse_ecart.md
+
+# Artefacts generes (non livrables)
+**/coverage
